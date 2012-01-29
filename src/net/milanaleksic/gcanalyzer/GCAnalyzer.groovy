@@ -5,12 +5,9 @@ import java.util.regex.Pattern
 import javax.swing.JFrame
 import javax.swing.JTabbedPane
 import org.jfree.chart.axis.DateAxis
-import org.jfree.chart.plot.CategoryMarker
-import org.jfree.chart.plot.CategoryPlot
-import java.awt.*
+import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.*
 import org.jfree.data.time.*
-import org.jfree.ui.*
 
 /**
  * User: Milan Aleksic
@@ -39,17 +36,9 @@ class GCAnalyzer {
         dataset.addSeries(series)
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
             "non-PermGen GC log", 'Time', 'Memory (K)', dataset, true, true, false);
-        CategoryPlot localCategoryPlot = (CategoryPlot) chart.getPlot()
+        XYPlot plot = (XYPlot) chart.getPlot()
 
-        CategoryMarker localCategoryMarker = new CategoryMarker("Category 4", Color.blue, new BasicStroke(1.0F));
-        localCategoryMarker.setDrawAsLine(true);
-        localCategoryMarker.setLabel("Marker Label");
-        localCategoryMarker.setLabelFont(new Font("Dialog", 0, 11));
-        localCategoryMarker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
-        localCategoryMarker.setLabelOffset(new RectangleInsets(2.0D, 5.0D, 2.0D, 5.0D));
-        localCategoryPlot.addDomainMarker(localCategoryMarker, Layer.BACKGROUND);
-
-        def axis = (DateAxis) localCategoryPlot.getDomainAxis();
+        def axis = (DateAxis) plot.getDomainAxis();
         axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"));
 
         JFrame frame = new JFrame("Garbage Collector Log analysis");
@@ -58,8 +47,9 @@ class GCAnalyzer {
         tabs.add('non-PermGen GC log', new ChartPanel(chart))
         frame.add(tabs);
         frame.pack();
-        frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        frame.setExtendedState((int) frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     def private final lineRegEx = Pattern.compile(
@@ -98,11 +88,7 @@ class GCAnalyzer {
             calendar.set(matcher.group(1) as int, (matcher.group(2) as int) - 1, matcher.group(3) as int,
                 matcher.group(4) as int, matcher.group(5) as int, matcher.group(6) as int)
             calendar.set(Calendar.MILLISECOND, matcher.group(7) as int)
-            float timeFromStartAsFloat = matcher.group(8) as float
-            int millisFromStart = Math.round(timeFromStartAsFloat * 1000)
-
             dataset.add(new Millisecond(calendar.getTime()), Double.parseDouble(matcher.group(20)))
-            dataset.get
         } else {
             throw new IllegalArgumentException("Not matched garbage collection log line: $line")
         }
