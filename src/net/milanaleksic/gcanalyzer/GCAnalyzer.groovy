@@ -29,8 +29,8 @@ class GCAnalyzer {
         frame.add(tabs);
         frame.pack();
         frame.setExtendedState((int) frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
 }

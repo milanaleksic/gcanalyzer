@@ -38,17 +38,11 @@ class GCLogParser {
 	/,?\s)+/ +
  /secs\]\s?)?/)
 
-    private String text
-
-    GCLogParser(File file) {
-        this(file.text)
+    GCEvents parse(File file) {
+        parse(file.text)
     }
 
-    GCLogParser(String text) {
-        this.text = text
-    }
-
-    GCEvents parse() {
+    GCEvents parse(String text) {
         HashMap<Date, GCEvent> hashMapOnDate = new HashMap<Date, GCEvent>()
         HashMap<Long, GCEvent> hashMapOnMillis = new HashMap<Long, GCEvent>()
         text.eachLine { line ->

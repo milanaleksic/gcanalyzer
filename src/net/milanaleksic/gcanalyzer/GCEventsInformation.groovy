@@ -17,7 +17,7 @@ class GCEventsInformation {
     private def GCEvents events
 
     GCEventsInformation(String fileName) {
-        events = new GCLogParser(new File(fileName)).parse()
+        events = new GCLogParser().parse(new File(fileName))
     }
 
     JFreeChart getNonPerGenGCChart(boolean non) {

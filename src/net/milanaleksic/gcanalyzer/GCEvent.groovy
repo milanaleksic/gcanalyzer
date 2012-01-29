@@ -16,4 +16,8 @@ final class GCEvent {
 
     def String gcEventName
 
+    public boolean isFullGarbageCollection() {
+        return gcEventName?.contains('Full')
+    }
+
 }
