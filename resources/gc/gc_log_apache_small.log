@@ -1,0 +1,5 @@
+2012-01-22T18:12:12.737+0000: 0.262: [GC [PSYoungGen: 3072K->502K(3584K)] 3072K->594K(9984K), 0.0052240 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
+2012-01-22T18:12:12.895+0000: 0.420: [GC [PSYoungGen: 3574K->504K(6656K)] 3666K->1112K(13056K), 0.0057690 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
+2012-01-22T18:12:13.078+0000: 0.604: [GC [PSYoungGen: 6627K->496K(6656K)] 7235K->1738K(13056K), 0.0060870 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+2012-01-22T18:12:13.103+0000: 0.628: [GC [PSYoungGen: 985K->496K(12800K)] 2228K->1817K(19200K), 0.0039460 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+2012-01-22T18:12:13.107+0000: 0.632: [Full GC (System) [PSYoungGen: 496K->0K(12800K)] [ParOldGen: 1321K->1755K(6400K)] 1817K->1755K(19200K) [PSPermGen: 7898K->7888K(15872K)], 0.0740170 secs] [Times: user=0.07 sys=0.00, real=0.08 secs] 

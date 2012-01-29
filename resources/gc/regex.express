@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<RegexProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Regex>(\d{4})-(\d{2})-(\d{2})T         # 1, 2, 3 - date parts
+(\d{2}):(\d{2}):(\d{2})\.(\d{3}) # 4, 5, 6, 7 - time parts
+\+\d{4}:\s                       # [noise]
+(\d+\.\d+):\s                    # 8 - time in seconds from program start
+\[([^\[]+)\s                     # 9 - Garbage collection event
+(                                # 10 - [helper group, don't use]
+    (\[                          # 11 - [helper group, don't use]
+        (                        # 12 - [helper group, don't use]
+			(\w+)\:\s            # 13 - GC name
+			([\dK]+)-&gt;           # 14 - GC start value
+			([\dK]+)\(           # 15 - GC end value 
+			([\dK]+)\)           # 16 - memory segment Max size
+		)+
+    \]\s?)
+	|
+(                                # 17 - [helper group, don't use]
+    ([\dK]+)-&gt;                   # 18 - non-PermGen start value
+	([\dK]+)\(                   # 19 - non-PermGen end value
+	([\dK]+)\)\s?                # 20 - non-PermGen Max size
+))+
+,\s([\d\.]+)\ssecs\]             # 21 - total garbage collection event time
+(\s\[Times:\s                    # 22 - [helper group, don't use]
+	(                            # 23 - helper group, don't use
+		(\w+)=                   # 24 - timing name (user/sys/real)
+		([\d\.]+)                # 25 - timing value (user/sys/real)
+	,?\s)+       
+secs\]\s?)?</Regex>
+  <Input>2012-01-22T18:12:13.107+0000: 0.632: [Full GC (System) [PSYoungGen: 496K-&gt;0K(12800K)] [ParOldGen: 1321K-&gt;1755K(6400K)] 1817K-&gt;1755K(19200K) [PSPermGen: 7898K-&gt;7888K(15872K)], 0.0740170 secs] [Times: user=0.07 sys=0.00, real=0.08 secs] 
+2012-01-22T18:12:12.737+0000: 0.262: [GC [PSYoungGen: 3072K-&gt;502K(3584K)] 3072K-&gt;594K(9984K), 0.0052240 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
+2012-01-22T18:12:12.895+0000: 0.420: [GC [PSYoungGen: 3574K-&gt;504K(6656K)] 3666K-&gt;1112K(13056K), 0.0057690 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
+2012-01-25T17:22:51.036+0000: 256238.562: [GC [PSYoungGen: 46976K-&gt;888K(47744K)] 64947K-&gt;18859K(75520K), 0.0047440 secs]</Input>
+  <Options>IgnoreCase Multiline Singleline IgnorePatternWhitespace</Options>
+  <FileName>M:\SourceCode\workspaces\GanymedeWorkspace\WARPToolkit\resources\gc\regex.express</FileName>
+  <ReplaceString />
+  <InputFilename>M:\SourceCode\workspaces\GanymedeWorkspace\WARPToolkit\resources\gc\gc_log_apache_small.log</InputFilename>
+  <UpdateEventsEnabled>true</UpdateEventsEnabled>
+</RegexProject>
