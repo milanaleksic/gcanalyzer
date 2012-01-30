@@ -97,7 +97,6 @@ class GCAnalyzer {
             fileTabs.add(new File(fileName).name, graphTabs)
             if (counter.decrementAndGet() == 0) {
                 frame.setTitle(TITLE)
-                println "changing title to $TITLE"
             }
         } as Runnable
     }
