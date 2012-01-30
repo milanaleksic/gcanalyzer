@@ -20,41 +20,36 @@ class GCEventsInformation {
         events = new GCLogParser().parse(new File(fileName))
     }
 
-    JFreeChart getNonPerGenGCChart(boolean non) {
-        TimeSeriesCollection dataset = new TimeSeriesCollection()
-        TimeSeries series = new TimeSeries("Time",  Millisecond.class)
-
-        events.hashMapOnDate.each { Date date, GCEvent event ->
-            series.add(new Millisecond(date), event.stats[null].maxValueInB)
-        }
-
-        dataset.addSeries(series)
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(
-            "non-PermGen GC log", 'Time', 'Memory (K)', dataset, true, true, false);
-        XYPlot plot = (XYPlot) chart.getPlot()
-
-        def axis = (DateAxis) plot.getDomainAxis();
-        axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"));
-
-        return chart
-    }
-
     JFreeChart getEventTimingsChart(boolean b) {
-        TimeSeriesCollection dataset = new TimeSeriesCollection()
+        return getTimeChartBasedOnClosure('Complete event time', 'Microseconds (us)') {
+            GCEvent event ->
+                return event.completeEventTimeInMicroSeconds
+        }
+    }
+
+    JFreeChart getNonPerGenGCChart(boolean non) {
+        return getTimeChartBasedOnClosure('Non-PermGen GC log', 'Memory (KB)') {
+            GCEvent event ->
+                return event.stats[null].maxValueInB / 1024
+        }
+    }
+
+    private JFreeChart getTimeChartBasedOnClosure(String graphName, String yAxisName, Closure process) {
+        TimeSeriesCollection dataSet = new TimeSeriesCollection()
         TimeSeries series = new TimeSeries("Time",  Millisecond.class)
 
         events.hashMapOnDate.each { Date date, GCEvent event ->
-            series.add(new Millisecond(date), event.completeEventTimeInMicroSeconds)
+            series.add(new Millisecond(date), (Number) process(event))
         }
 
-        dataset.addSeries(series)
+        dataSet.addSeries(series)
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
-            "Complete event time", 'Time', 'Microseconds (us)', dataset, true, true, false);
+            graphName, 'Time', yAxisName, dataSet, true, true, false);
         XYPlot plot = (XYPlot) chart.getPlot()
 
         def axis = (DateAxis) plot.getDomainAxis();
         axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"));
-
         return chart
     }
+
 }
