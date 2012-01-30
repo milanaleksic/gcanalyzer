@@ -1,21 +1,12 @@
 package net.milanaleksic.gcanalyzer
 
-import javax.swing.JFrame
-import javax.swing.JTabbedPane
-import org.jfree.chart.ChartPanel
-import javax.swing.JPanel
-import javax.swing.JLabel
-import java.awt.BorderLayout
-
-import javax.swing.JButton
+import groovy.io.FileType
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import javax.swing.JTextField
-import java.awt.GridBagLayout
-import java.awt.GridBagConstraints
-import javax.swing.SwingUtilities
-import groovy.io.FileType
 import java.util.concurrent.atomic.AtomicInteger
+import org.jfree.chart.ChartPanel
+import java.awt.*
+import javax.swing.*
 
 /**
  * User: Milan Aleksic
