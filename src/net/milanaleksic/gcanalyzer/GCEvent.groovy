@@ -16,6 +16,14 @@ final class GCEvent {
 
     def String gcEventName
 
+    long userTiming
+
+    long sysTiming
+
+    long realTiming
+
+    long completeEventTimeInMicroSeconds
+
     public boolean isFullGarbageCollection() {
         return gcEventName?.contains('Full')
     }

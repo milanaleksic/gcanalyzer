@@ -9,34 +9,51 @@ import java.util.regex.Pattern
  */
 class GCLogParser {
 
-    def private static final lineRegEx = Pattern.compile(
- /(\d{4})-(\d{2})-(\d{2})T/ +        // 1, 2, 3 - date parts
- /(\d{2}):(\d{2}):(\d{2})\.(\d{3})/+ // 4, 5, 6, 7 - time parts
- /\+\d{4}:\s/ +                      // [noise]
- /(\d+\.\d+):\s/ +                   // 8 - time in seconds from program start
- /\[([^\[]+)\s/ +                    // 9 - Garbage collection event
- /(/ +                               // 10 - [helper group, don't use]
-    /(\[/ +                          // 11 - [helper group, don't use]
-        /(/ +                        // 12 - [helper group, don't use]
-			/(\w+)\:\s/ +            // 13 - GC name
-			/([\dKMG]+)->/ +         // 14 - GC start value
-			/([\dKMG]+)\(/ +         // 15 - GC end value
-			/([\dKMG]+)\)/ +         // 16 - memory segment Max size
-		/)+/ +
-    /\]\s?)/ +
-	/|/ +
- /(/ +                               // 17 - [helper group, don't use]
-    /([\dKMG]+)->/ +                 // 18 - non-PermGen start value
-	/([\dKMG]+)\(/ +                 // 19 - non-PermGen end value
-	/([\dKMG]+)\)\s?/ +              // 20 - non-PermGen Max size
- /))+/ +
- /,\s([\d\.]+)\ssecs\]/ +            // 21 - total garbage collection event time
- /(\s\[Times:\s/ +                   // 22 - [helper group, don't use]
-	/(/ +                            // 23 - helper group, don't use
-		/(\w+)=/ +                   // 24 - timing name (user/sys/real)
-		/([\d\.]+)/ +                // 25 - timing value (user/sys/real)
-	/,?\s)+/ +
- /secs\]\s?)?/)
+    def private static final statisticDetails = $/
+    (\[                                  # 12/1 - [helper group]
+         (                               # 13/2 - [helper group]
+             (\w+)\:\s                   # 14/3 - GC name
+             ([\dKMG]+)->                # 15/4 - GC start value
+             ([\dKMG]+)\(                # 16/5 - GC end value
+             ([\dKMG]+)\)                # 17/6 - memory segment Max size
+         )+
+     \]\s?)
+    |
+    (                                    # 18/7 - [helper group]
+        ([\dKMG]+)->                     # 19/8 - non-PermGen start value
+        ([\dKMG]+)\(                     # 20/9 - non-PermGen end value
+        ([\dKMG]+)\)\s?                  # 21/10 - non-PermGen Max size
+    )
+    /$
+
+    def private static final timingDetails = $/
+        (\w+)=                           # 25/1 - timing name (user, sys, real)
+        ([\d\.]+)                        # 26/2 - timing value (user, sys, real)
+    /$
+
+    private static final Pattern completeLineRegEx = Pattern.compile($/
+        (\d{4})-(\d{2})-(\d{2})T         # 1, 2, 3 - date parts
+        (\d{2}):(\d{2}):(\d{2})\.(\d{3}) # 4, 5, 6, 7 - time parts
+        \+\d{4}:\s                       # [noise]
+        (\d+\.\d+):\s                    # 8 - time in seconds from program start
+        \[([^\[]+)\s                     # 9 - Garbage collection event
+        (                                # 10 - [helper group]
+            (                            # 11 - [helper group]
+                $statisticDetails
+            )+
+        )
+        ,\s([\d\.]+)\ssecs\]             # 22 - total garbage collection event time
+        \s?
+        (\[Times:\s                      # 23 - [helper group]
+            (                            # 24 - helper group
+                $timingDetails
+            ,?\s)+
+        secs\]\s?)?
+    /$, Pattern.COMMENTS)
+
+    private static final Pattern statisticDetailsRegEx = Pattern.compile(statisticDetails, Pattern.COMMENTS)
+
+    private static final Pattern timingDetailsRegEx = Pattern.compile(timingDetails, Pattern.COMMENTS)
 
     GCEvents parse(File file) {
         parse(file.text)
@@ -53,7 +70,7 @@ class GCLogParser {
     }
 
     void processLine(String line, HashMap<Date, GCEvent> hashMapOnDate, HashMap<Long, GCEvent> hashMapOnMillis) {
-        def matcher = (line =~ lineRegEx)
+        def matcher = (line =~ completeLineRegEx)
         if (matcher.find()) {
             def calendar = Calendar.getInstance()
             calendar.set(matcher.group(1) as int, (matcher.group(2) as int) - 1, matcher.group(3) as int,
@@ -61,29 +78,56 @@ class GCLogParser {
             calendar.set(Calendar.MILLISECOND, matcher.group(7) as int)
             Date time = calendar.getTime()
 
-            long timeInMillis = new BigDecimal(matcher.group(8)) * 1000
+            long timeMs = new BigDecimal(matcher.group(8)) * 1000
             def gcEventName = matcher.group(9)
 
-            Map<String, SingleGCStatistic> stats = [:]
-            String gcName = matcher.group(13)
-            stats[gcName] = new SingleGCStatistic(gcName: gcName,
-                    startValueInB: Utils.convertMemoryValueStringToLong(matcher.group(14)),
-                    endValueInB: Utils.convertMemoryValueStringToLong(matcher.group(15)),
-                    maxValueInB: Utils.convertMemoryValueStringToLong(matcher.group(16)))
-            stats[null] = new SingleGCStatistic(gcName: null,
-                    startValueInB: Utils.convertMemoryValueStringToLong(matcher.group(18)),
-                    endValueInB: Utils.convertMemoryValueStringToLong(matcher.group(19)),
-                    maxValueInB: Utils.convertMemoryValueStringToLong(matcher.group(20)))
+            def userTiming = null, sysTiming = null, realTiming = null
+            Map<String, SingleGCStatistic> stats = extractStatisticsData(matcher.group(10))
+            def timingsString = matcher.group(23)
+            if (timingsString) {
+                Map<String, Long> timings = extractTimings(matcher.group(23))
+                userTiming = timings['user']
+                sysTiming = timings['sys']
+                realTiming = timings['real']
+                assert userTiming != null && sysTiming != null && realTiming != null
+            }
 
-            //TODO: timing statistics
+            long completeEventTimeInMicroSeconds = new BigDecimal(matcher.group(22)) * 1000 * 1000
 
-            def event = new GCEvent(time: time, timeInMillis: timeInMillis,
-                    gcEventName: gcEventName, stats: Collections.unmodifiableMap(stats))
+            def event = new GCEvent(time: time, timeInMillis: timeMs,
+                    gcEventName: gcEventName, stats: Collections.unmodifiableMap(stats),
+                    userTiming: userTiming, sysTiming: sysTiming, realTiming: realTiming,
+                    completeEventTimeInMicroSeconds: completeEventTimeInMicroSeconds
+            )
 
-            hashMapOnDate[time] = hashMapOnMillis[timeInMillis] = event
+            hashMapOnDate[time] = hashMapOnMillis[timeMs] = event
 
         } else {
             throw new IllegalArgumentException("Not matched garbage collection log line: $line")
         }
     }
+
+    private Map<String, SingleGCStatistic> extractStatisticsData(String statisticsString) {
+        Map<String, SingleGCStatistic> stats = [:]
+        def statisticsMatcher = statisticDetailsRegEx.matcher(statisticsString)
+        while (statisticsMatcher.find()) {
+            String gcName = statisticsMatcher.group(3)
+            stats[gcName] = new SingleGCStatistic(gcName: gcName,
+                    startValueInB: Utils.convertMemoryValueStringToLong(statisticsMatcher.group(gcName ? 4 : 8)),
+                    endValueInB: Utils.convertMemoryValueStringToLong(statisticsMatcher.group(gcName ? 5 : 9)),
+                    maxValueInB: Utils.convertMemoryValueStringToLong(statisticsMatcher.group(gcName ? 6 : 10))
+            )
+        }
+        return stats
+    }
+
+    private Map<String, Long> extractTimings(String timingString) {
+        Map<String, Long> stats = [:]
+        def timingsMatcher = timingDetailsRegEx.matcher(timingString)
+        while (timingsMatcher.find()) {
+            stats[timingsMatcher.group(1)] = new BigDecimal(timingsMatcher.group(2))*1000
+        }
+        return stats
+    }
+
 }

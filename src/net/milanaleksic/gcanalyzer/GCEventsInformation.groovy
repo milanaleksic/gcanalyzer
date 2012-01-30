@@ -39,4 +39,22 @@ class GCEventsInformation {
         return chart
     }
 
+    JFreeChart getEventTimingsChart(boolean b) {
+        TimeSeriesCollection dataset = new TimeSeriesCollection()
+        TimeSeries series = new TimeSeries("Time",  Millisecond.class)
+
+        events.hashMapOnDate.each { Date date, GCEvent event ->
+            series.add(new Millisecond(date), event.completeEventTimeInMicroSeconds)
+        }
+
+        dataset.addSeries(series)
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+            "Complete event time", 'Time', 'Microseconds (us)', dataset, true, true, false);
+        XYPlot plot = (XYPlot) chart.getPlot()
+
+        def axis = (DateAxis) plot.getDomainAxis();
+        axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"));
+
+        return chart
+    }
 }

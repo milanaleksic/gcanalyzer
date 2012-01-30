@@ -25,7 +25,8 @@ class GCAnalyzer {
         JFrame frame = new JFrame('Garbage Collector Log analysis');
 
         JTabbedPane tabs = new JTabbedPane();
-        tabs.add('non-PermGen GC log', new ChartPanel(gcEventsInformation.getNonPerGenGCChart(markFullGCs)))
+        tabs.add('non-PermGen GC', new ChartPanel(gcEventsInformation.getNonPerGenGCChart(markFullGCs)))
+        tabs.add('event timings', new ChartPanel(gcEventsInformation.getEventTimingsChart(markFullGCs)))
         frame.add(tabs);
         frame.pack();
         frame.setExtendedState((int) frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
