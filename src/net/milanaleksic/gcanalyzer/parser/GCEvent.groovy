@@ -1,7 +1,5 @@
 package net.milanaleksic.gcanalyzer.parser
 
-import net.milanaleksic.gcanalyzer.parser.SingleGCStatistic
-
 /**
  * User: Milan Aleksic
  * Date: 1/29/12

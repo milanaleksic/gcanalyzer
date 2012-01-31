@@ -5,11 +5,8 @@ import org.jfree.chart.ChartFactory
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.DateAxis
 import org.jfree.chart.plot.XYPlot
+import net.milanaleksic.gcanalyzer.parser.*
 import org.jfree.data.time.*
-import net.milanaleksic.gcanalyzer.parser.GCLogParser
-import net.milanaleksic.gcanalyzer.parser.SingleGCStatistic
-import net.milanaleksic.gcanalyzer.parser.GCEvent
-import net.milanaleksic.gcanalyzer.parser.GCEvents
 
 /**
  * User: Milan Aleksic

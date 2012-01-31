@@ -1,7 +1,6 @@
 package net.milanaleksic.gcanalyzer.parser
 
 import java.util.regex.Pattern
-
 import net.milanaleksic.gcanalyzer.Utils
 
 /**
