@@ -112,6 +112,7 @@ class GCAnalyzer {
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getYoungGenerationChart()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getOldGenerationChart()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getPermanentGenerationChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getTimeSpentOnAllGC()))
         SwingUtilities.invokeLater {
             fileTabs.add(new File(fileName).name, graphTabs)
             if (counter.decrementAndGet() == 0) {

@@ -61,8 +61,8 @@ class GCLogParser {
     }
 
     GCEvents parse(String text) {
-        HashMap<Date, GCEvent> hashMapOnDate = new HashMap<Date, GCEvent>()
-        HashMap<Long, GCEvent> hashMapOnMillis = new HashMap<Long, GCEvent>()
+        HashMap<Date, GCEvent> hashMapOnDate = new LinkedHashMap<Date, GCEvent>()
+        HashMap<Long, GCEvent> hashMapOnMillis = new LinkedHashMap<Long, GCEvent>()
         text.eachLine { line ->
             processLine(line, hashMapOnDate, hashMapOnMillis)
         }

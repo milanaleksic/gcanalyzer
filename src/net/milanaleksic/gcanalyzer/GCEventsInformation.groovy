@@ -70,6 +70,14 @@ class GCEventsInformation {
         }
     }
 
+    JFreeChart getTimeSpentOnAllGC() {
+        events.hashMapOnDate.keySet().each {
+            println it
+        }
+        return getTimeChart('Time spent on all GC', '% of time per hour') { TimeSeries series ->
+        }
+    }
+
     private JFreeChart getTimeChartBasedOnIndependentEvents(String graphName, String yAxisName, Closure process) {
         return getTimeChart(graphName, yAxisName) { TimeSeries series ->
             events.hashMapOnDate.each { Date date, GCEvent event ->
