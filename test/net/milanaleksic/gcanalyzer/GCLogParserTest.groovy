@@ -3,6 +3,9 @@ package net.milanaleksic.gcanalyzer
 import org.junit.Test
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import net.milanaleksic.gcanalyzer.parser.GCLogParser
+import net.milanaleksic.gcanalyzer.parser.GCEvent
+import net.milanaleksic.gcanalyzer.parser.GCEvents
 
 /**
  * User: Milan Aleksic

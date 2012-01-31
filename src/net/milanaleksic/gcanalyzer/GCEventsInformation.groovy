@@ -6,6 +6,10 @@ import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.DateAxis
 import org.jfree.chart.plot.XYPlot
 import org.jfree.data.time.*
+import net.milanaleksic.gcanalyzer.parser.GCLogParser
+import net.milanaleksic.gcanalyzer.parser.SingleGCStatistic
+import net.milanaleksic.gcanalyzer.parser.GCEvent
+import net.milanaleksic.gcanalyzer.parser.GCEvents
 
 /**
  * User: Milan Aleksic
@@ -20,17 +24,52 @@ class GCEventsInformation {
         events = new GCLogParser().parse(new File(fileName))
     }
 
-    JFreeChart getEventTimingsChart(boolean b) {
-        return getTimeChartBasedOnClosure('Complete event time', 'Microseconds (us)') {
+    JFreeChart getEventTimingsChart() {
+        return getTimeChartBasedOnClosure('Complete event time', 'Milliseconds (ms)') {
             GCEvent event ->
-                return event.completeEventTimeInMicroSeconds
+                return event.completeEventTimeInMicroSeconds / 1000
         }
     }
 
-    JFreeChart getNonPerGenGCChart(boolean non) {
-        return getTimeChartBasedOnClosure('Non-PermGen GC log', 'Memory (KB)') {
+    JFreeChart getYoungGCEventTimingsChart() {
+        return getTimeChartBasedOnClosure('Only Young Generation GC event time', 'Milliseconds (ms)') {
+            GCEvent event ->
+                return event.fullGarbageCollection ? null : event.completeEventTimeInMicroSeconds / 1000
+        }
+    }
+
+    JFreeChart getFullGCEventTimingsChart() {
+        return getTimeChartBasedOnClosure('Full Generation GC event time', 'Milliseconds (ms)') {
+            GCEvent event ->
+                return event.fullGarbageCollection ? event.completeEventTimeInMicroSeconds / 1000 : null
+        }
+    }
+
+    JFreeChart getHeapWithoutPermanentGenerationGCChart() {
+        return getTimeChartBasedOnClosure('Heap without Permanent generation', 'Memory (KB)') {
             GCEvent event ->
                 return event.stats[null].maxValueInB / 1024
+        }
+    }
+
+    JFreeChart getYoungGenerationChart() {
+        return getTimeChartBasedOnClosure('Young generation Max Size', 'Memory (KB)') {
+            GCEvent event ->
+                return event.stats['PSYoungGen'].maxValueInB / 1024
+        }
+    }
+
+    JFreeChart getOldGenerationChart() {
+        return getTimeChartBasedOnClosure('Old generation Max Size', 'Memory (KB)') { GCEvent event ->
+            SingleGCStatistic value = event.stats['ParOldGen']
+            return value ? value.maxValueInB / 1024 : null
+        }
+    }
+
+    JFreeChart getPermanentGenerationChart() {
+        return getTimeChartBasedOnClosure('Permanent generation Max Size', 'Memory (KB)') { GCEvent event ->
+            SingleGCStatistic value = event.stats['PSPermGen']
+            return value ? value.maxValueInB / 1024 : null
         }
     }
 
@@ -39,7 +78,9 @@ class GCEventsInformation {
         TimeSeries series = new TimeSeries("Time",  Millisecond.class)
 
         events.hashMapOnDate.each { Date date, GCEvent event ->
-            series.add(new Millisecond(date), (Number) process(event))
+            Number value = (Number) process(event)
+            if (value)
+                series.add(new Millisecond(date), value)
         }
 
         dataSet.addSeries(series)

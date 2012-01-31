@@ -30,7 +30,33 @@ class GCAnalyzer {
     private static final String TITLE = 'Garbage Collector Log analysis'
 
     public def exec() {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Throwable ignored) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Throwable ignored2) {
+            }
+        }
         frame = new JFrame(TITLE)
+
+        frame.add(getMainAnalyzerPanel(), BorderLayout.NORTH)
+
+        fileTabs = new JTabbedPane()
+        fileTabs.add("Heap size recommendations", new HeapSizeRecommendationsPanel())
+
+        frame.add(fileTabs)
+        frame.setPreferredSize(new Dimension(750, 550))
+        frame.setLocation(new Point(100, 100))
+        frame.pack()
+        frame.setExtendedState((int) frame.getExtendedState() | JFrame.MAXIMIZED_BOTH)
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+        frame.setVisible(true)
+
+        startRequestedFilesParsing()
+    }
+
+    private JPanel getMainAnalyzerPanel() {
         JPanel panel = new JPanel()
         def constraints = new GridBagConstraints()
         panel.setLayout(new GridBagLayout())
@@ -47,15 +73,12 @@ class GCAnalyzer {
         constraints.gridx=2
         constraints.weightx = 0.1
         panel.add(button, constraints)
+        return panel
+    }
 
-        frame.add(panel, BorderLayout.NORTH)
-
-        fileTabs = new JTabbedPane()
-        frame.add(fileTabs)
-        frame.pack()
-        frame.setExtendedState((int) frame.getExtendedState() | JFrame.MAXIMIZED_BOTH)
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-        frame.setVisible(true)
+    void startRequestedFilesParsing() {
+        if (!args || args.size() == 0)
+            return
         new Thread({
             def files = []
             args.each { String filename ->
@@ -81,9 +104,13 @@ class GCAnalyzer {
     void addFile(String fileName) {
         def gcEventsInformation = new GCEventsInformation(fileName)
         JTabbedPane graphTabs = new JTabbedPane()
-        boolean markFullGCs = true
-        graphTabs.add('non-PermGen GC', new ChartPanel(gcEventsInformation.getNonPerGenGCChart(markFullGCs)))
-        graphTabs.add('event timings', new ChartPanel(gcEventsInformation.getEventTimingsChart(markFullGCs)))
+        graphTabs.add('All Event timings', new ChartPanel(gcEventsInformation.getEventTimingsChart()))
+        graphTabs.add('Young Gen Event timings', new ChartPanel(gcEventsInformation.getYoungGCEventTimingsChart()))
+        graphTabs.add('Full GC Event timings', new ChartPanel(gcEventsInformation.getFullGCEventTimingsChart()))
+        graphTabs.add('Heap without Permanent generation', new ChartPanel(gcEventsInformation.getHeapWithoutPermanentGenerationGCChart()))
+        graphTabs.add('Young Gen timings', new ChartPanel(gcEventsInformation.getYoungGenerationChart()))
+        graphTabs.add('Old Gen timings', new ChartPanel(gcEventsInformation.getOldGenerationChart()))
+        graphTabs.add('Permanent Gen timings', new ChartPanel(gcEventsInformation.getPermanentGenerationChart()))
         SwingUtilities.invokeLater {
             fileTabs.add(new File(fileName).name, graphTabs)
             if (counter.decrementAndGet() == 0) {

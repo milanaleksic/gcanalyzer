@@ -1,6 +1,8 @@
-package net.milanaleksic.gcanalyzer
+package net.milanaleksic.gcanalyzer.parser
 
 import java.util.regex.Pattern
+
+import net.milanaleksic.gcanalyzer.Utils
 
 /**
  * User: Milan Aleksic

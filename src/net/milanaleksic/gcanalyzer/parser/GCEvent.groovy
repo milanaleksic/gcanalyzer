@@ -1,4 +1,6 @@
-package net.milanaleksic.gcanalyzer
+package net.milanaleksic.gcanalyzer.parser
+
+import net.milanaleksic.gcanalyzer.parser.SingleGCStatistic
 
 /**
  * User: Milan Aleksic
