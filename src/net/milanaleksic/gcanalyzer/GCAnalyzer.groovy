@@ -108,9 +108,9 @@ class GCAnalyzer {
         graphTabs.add('Young Gen Event timings', new ChartPanel(gcEventsInformation.getYoungGCEventTimingsChart()))
         graphTabs.add('Full GC Event timings', new ChartPanel(gcEventsInformation.getFullGCEventTimingsChart()))
         graphTabs.add('Heap without Permanent generation', new ChartPanel(gcEventsInformation.getHeapWithoutPermanentGenerationGCChart()))
-        graphTabs.add('Young Gen timings', new ChartPanel(gcEventsInformation.getYoungGenerationChart()))
-        graphTabs.add('Old Gen timings', new ChartPanel(gcEventsInformation.getOldGenerationChart()))
-        graphTabs.add('Permanent Gen timings', new ChartPanel(gcEventsInformation.getPermanentGenerationChart()))
+        graphTabs.add('Young Gen Max Memory', new ChartPanel(gcEventsInformation.getYoungGenerationChart()))
+        graphTabs.add('Old Gen Max Memory', new ChartPanel(gcEventsInformation.getOldGenerationChart()))
+        graphTabs.add('Permanent Gen Max Memory', new ChartPanel(gcEventsInformation.getPermanentGenerationChart()))
         SwingUtilities.invokeLater {
             fileTabs.add(new File(fileName).name, graphTabs)
             if (counter.decrementAndGet() == 0) {
