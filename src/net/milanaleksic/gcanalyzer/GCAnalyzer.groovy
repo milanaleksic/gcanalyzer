@@ -104,19 +104,24 @@ class GCAnalyzer {
     void addFile(String fileName) {
         def gcEventsInformation = new GCEventsInformation(fileName)
         JTabbedPane graphTabs = new JTabbedPane()
-        graphTabs.add('All Event timings', new ChartPanel(gcEventsInformation.getEventTimingsChart()))
-        graphTabs.add('Young Gen Event timings', new ChartPanel(gcEventsInformation.getYoungGCEventTimingsChart()))
-        graphTabs.add('Full GC Event timings', new ChartPanel(gcEventsInformation.getFullGCEventTimingsChart()))
-        graphTabs.add('Heap without Permanent generation', new ChartPanel(gcEventsInformation.getHeapWithoutPermanentGenerationGCChart()))
-        graphTabs.add('Young Gen Max Memory', new ChartPanel(gcEventsInformation.getYoungGenerationChart()))
-        graphTabs.add('Old Gen Max Memory', new ChartPanel(gcEventsInformation.getOldGenerationChart()))
-        graphTabs.add('Permanent Gen Max Memory', new ChartPanel(gcEventsInformation.getPermanentGenerationChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getEventTimingsChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getEventTimingsChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getYoungGCEventTimingsChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFullGCEventTimingsChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getHeapWithoutPermanentGenerationGCChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getYoungGenerationChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getOldGenerationChart()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getPermanentGenerationChart()))
         SwingUtilities.invokeLater {
             fileTabs.add(new File(fileName).name, graphTabs)
             if (counter.decrementAndGet() == 0) {
                 frame.setTitle(TITLE)
             }
         } as Runnable
+    }
+
+    def addGraph(JTabbedPane graphTabs, ChartPanel chartPanel) {
+        graphTabs.add(chartPanel.chart.title.text, chartPanel)
     }
 
 }
