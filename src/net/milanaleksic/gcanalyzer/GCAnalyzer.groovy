@@ -115,6 +115,9 @@ class GCAnalyzer {
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getTimeSpentOnAllGC()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getTimeSpentOnYoungGC()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getTimeSpentOnFullGC()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnAllGC()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnYoungGC()))
+        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnFullGC()))
         SwingUtilities.invokeLater {
             fileTabs.add(new File(fileName).name, graphTabs)
             if (counter.decrementAndGet() == 0) {
