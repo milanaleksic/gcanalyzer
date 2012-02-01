@@ -71,10 +71,60 @@ class GCEventsInformation {
     }
 
     JFreeChart getTimeSpentOnAllGC() {
-        events.hashMapOnDate.keySet().each {
-            println it
+        return getTimeChartBasedOnPerHour('Time spent on all GC', '% of time per hour') { GCEvent event,  Number previousValue->
+            return previousValue ?
+                previousValue+event.completeEventTimeInMicroSeconds/1000 :
+                event.completeEventTimeInMicroSeconds/1000
         }
-        return getTimeChart('Time spent on all GC', '% of time per hour') { TimeSeries series ->
+    }
+
+    JFreeChart getTimeSpentOnYoungGC() {
+        return getTimeChartBasedOnPerHour('Time spent on Young GC', '% of time per hour') { GCEvent event,  Number previousValue->
+            if (event.fullGarbageCollection)
+                return previousValue
+            else
+                return previousValue ?
+                    previousValue+event.completeEventTimeInMicroSeconds/1000 :
+                    event.completeEventTimeInMicroSeconds/1000
+        }
+    }
+
+    JFreeChart getTimeSpentOnFullGC() {
+        return getTimeChartBasedOnPerHour('Time spent on Full GC', '% of time per hour') { GCEvent event,  Number previousValue->
+            if (event.fullGarbageCollection)
+                return previousValue ?
+                    previousValue+event. completeEventTimeInMicroSeconds/1000 :
+                    event.completeEventTimeInMicroSeconds/1000
+            else
+                return previousValue
+        }
+    }
+
+    private JFreeChart getTimeChartBasedOnPerHour(String graphName, String yAxisName, Closure process) {
+        return getTimeChart(graphName, yAxisName) { TimeSeries series ->
+            if (!events.hashMapOnDate || events.hashMapOnDate.size()==0)
+                return
+            HashMap<Date, Number> timesPerHour = new LinkedHashMap<Date, Number>()
+            Date minTime = null, maxTime = null
+            events.hashMapOnDate.each { Date date, GCEvent event ->
+                Date roundTime = Utils.roundToHour(date)
+                if (!minTime || roundTime.before(minTime))
+                    minTime = roundTime
+                if (!maxTime || roundTime.after(maxTime))
+                    maxTime = roundTime
+                timesPerHour[roundTime] = process(event, timesPerHour[roundTime])
+            }
+            Calendar iterator = Calendar.getInstance()
+            iterator.setTime(minTime)
+            while (iterator.getTime().before(maxTime)) {
+                Date iteratorTime = iterator.getTime()
+                Number timeSpent = timesPerHour[iteratorTime]
+                if (!timeSpent) {
+                    timeSpent = 0
+                }
+                series.add(new Millisecond(iteratorTime), 100 * timeSpent / (60*60*1000))
+                iterator.add(Calendar.HOUR, 1)
+            }
         }
     }
 
