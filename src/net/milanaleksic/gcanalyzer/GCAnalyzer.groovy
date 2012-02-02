@@ -4,6 +4,7 @@ import groovy.io.FileType
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.util.concurrent.atomic.AtomicInteger
+import javax.swing.tree.DefaultMutableTreeNode
 import org.jfree.chart.ChartPanel
 import java.awt.*
 import javax.swing.*
@@ -103,7 +104,16 @@ class GCAnalyzer {
 
     void addFile(String fileName) {
         def gcEventsInformation = new GCEventsInformation(fileName)
+        JSplitPane fileAnalysisPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
         JTabbedPane graphTabs = new JTabbedPane()
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Analysis graph");
+        DefaultMutableTreeNode memoryNode = new DefaultMutableTreeNode("Memory");
+        root.add(memoryNode);
+        DefaultMutableTreeNode timingNode = new DefaultMutableTreeNode("Timing");
+        root.add(timingNode);
+
+        JTree tree = new JTree(root);
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getEventTimingsChart()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getYoungGCEventTimingsChart()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFullGCEventTimingsChart()))
@@ -118,7 +128,11 @@ class GCAnalyzer {
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnYoungGC()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnFullGC()))
         SwingUtilities.invokeLater {
-            fileTabs.add(new File(fileName).name, graphTabs)
+            graphTabs.setPreferredSize(new Dimension(400,400))
+            fileAnalysisPanel.add(tree)
+            fileAnalysisPanel.add(graphTabs)
+
+            fileTabs.add(new File(fileName).name, fileAnalysisPanel)
             if (counter.decrementAndGet() == 0) {
                 frame.setTitle(TITLE)
             }
