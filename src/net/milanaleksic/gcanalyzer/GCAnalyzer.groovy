@@ -105,7 +105,6 @@ class GCAnalyzer {
         def gcEventsInformation = new GCEventsInformation(fileName)
         JTabbedPane graphTabs = new JTabbedPane()
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getEventTimingsChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getEventTimingsChart()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getYoungGCEventTimingsChart()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFullGCEventTimingsChart()))
         addGraph(graphTabs, new ChartPanel(gcEventsInformation.getHeapWithoutPermanentGenerationGCChart()))
