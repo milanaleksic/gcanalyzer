@@ -1,6 +1,7 @@
-package net.milanaleksic.gcanalyzer
+package net.milanaleksic.gcanalyzer.graphing
 
 import java.text.SimpleDateFormat
+import net.milanaleksic.gcanalyzer.Utils
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.DateAxis
@@ -19,6 +20,36 @@ class GCEventsInformation {
 
     GCEventsInformation(String fileName) {
         events = new GCLogParser().parse(new File(fileName))
+    }
+
+    JFreeChart[] getChartsForCategory(GCEventCategory category) {
+        switch (category) {
+            case GCEventCategory.MEMORY_MAX_SIZE:
+                return [
+                        getHeapWithoutPermanentGenerationGCChart(),
+                        getYoungGenerationChart(),
+                        getOldGenerationChart(),
+                        getPermanentGenerationChart()
+                ]
+            case GCEventCategory.TIME_SPENT_PER_HOUR:
+                return [
+                        getTimeSpentOnAllGC(),
+                        getTimeSpentOnYoungGC(),
+                        getTimeSpentOnFullGC()
+                ]
+            case GCEventCategory.EVENTS_PER_HOUR:
+                return [
+                        getFrequencyPerHourOnAllGC(),
+                        getFrequencyPerHourOnYoungGC(),
+                        getFrequencyPerHourOnFullGC()
+                ]
+            case GCEventCategory.INDIVIDUAL_EVENT_TIMING:
+                return [
+                        getEventTimingsChart(),
+                        getYoungGCEventTimingsChart(),
+                        getFullGCEventTimingsChart()
+                ]
+        }
     }
 
     JFreeChart getEventTimingsChart() {

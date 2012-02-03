@@ -4,8 +4,13 @@ import groovy.io.FileType
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.util.concurrent.atomic.AtomicInteger
+import javax.swing.event.TreeSelectionEvent
+import javax.swing.event.TreeSelectionListener
 import javax.swing.tree.DefaultMutableTreeNode
+import net.milanaleksic.gcanalyzer.graphing.GCEventCategory
+import net.milanaleksic.gcanalyzer.graphing.GCEventsInformation
 import org.jfree.chart.ChartPanel
+import org.jfree.chart.JFreeChart
 import java.awt.*
 import javax.swing.*
 
@@ -105,32 +110,34 @@ class GCAnalyzer {
     void addFile(String fileName) {
         def gcEventsInformation = new GCEventsInformation(fileName)
         JSplitPane fileAnalysisPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
-        JTabbedPane graphTabs = new JTabbedPane()
+        JPanel graphPanels = new JPanel(new CardLayout())
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Analysis graph");
-        DefaultMutableTreeNode memoryNode = new DefaultMutableTreeNode("Memory");
-        root.add(memoryNode);
-        DefaultMutableTreeNode timingNode = new DefaultMutableTreeNode("Timing");
-        root.add(timingNode);
-
-        JTree tree = new JTree(root);
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getEventTimingsChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getYoungGCEventTimingsChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFullGCEventTimingsChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getHeapWithoutPermanentGenerationGCChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getYoungGenerationChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getOldGenerationChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getPermanentGenerationChart()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getTimeSpentOnAllGC()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getTimeSpentOnYoungGC()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getTimeSpentOnFullGC()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnAllGC()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnYoungGC()))
-        addGraph(graphTabs, new ChartPanel(gcEventsInformation.getFrequencyPerHourOnFullGC()))
+        GCEventCategory.each { GCEventCategory category ->
+            DefaultMutableTreeNode categoryNode = new DefaultMutableTreeNode(category.getTitle())
+            root.add(categoryNode)
+            JFreeChart[] charts = gcEventsInformation.getChartsForCategory(category)
+            charts.each { JFreeChart chart ->
+                addGraph(categoryNode, graphPanels, new ChartPanel(chart))
+            }
+        }
         SwingUtilities.invokeLater {
-            graphTabs.setPreferredSize(new Dimension(400,400))
+            JTree tree = new JTree(root);
+            tree.addTreeSelectionListener(new TreeSelectionListener() {
+                @Override
+                void valueChanged(TreeSelectionEvent e) {
+                    Object nodeWrapperAsObject = ((DefaultMutableTreeNode) e.path.getLastPathComponent())?.userObject
+                    if (!(nodeWrapperAsObject instanceof ChartPanelNodeWrapper))
+                        return
+                    ChartPanelNodeWrapper nodeWrapper = (ChartPanelNodeWrapper) nodeWrapperAsObject
+                    if (!nodeWrapper)
+                        return
+                    CardLayout layout = (CardLayout) graphPanels.getLayout()
+                    layout.show(graphPanels, nodeWrapper.toString())
+                }
+            })
             fileAnalysisPanel.add(tree)
-            fileAnalysisPanel.add(graphTabs)
+            fileAnalysisPanel.add(graphPanels)
 
             fileTabs.add(new File(fileName).name, fileAnalysisPanel)
             if (counter.decrementAndGet() == 0) {
@@ -139,10 +146,13 @@ class GCAnalyzer {
         } as Runnable
     }
 
-    def addGraph(JTabbedPane graphTabs, ChartPanel chartPanel) {
+    def addGraph(DefaultMutableTreeNode root, JPanel graphPanels, ChartPanel chartPanel) {
         if (!chartPanel.chart)
             return
-        graphTabs.add(chartPanel.chart.title.text, chartPanel)
+        ChartPanelNodeWrapper wrapper = new ChartPanelNodeWrapper(chartPanel: chartPanel)
+        graphPanels.add(chartPanel, wrapper.toString())
+        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(wrapper)
+        root.add(newNode)
     }
 
 }
