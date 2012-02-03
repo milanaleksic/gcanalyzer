@@ -111,6 +111,7 @@ class GCAnalyzer {
         def gcEventsInformation = new GCEventsInformation(fileName)
         JSplitPane fileAnalysisPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
         JPanel graphPanels = new JPanel(new CardLayout())
+        graphPanels.add(new JPanel(), "")
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Analysis graph");
         GCEventCategory.each { GCEventCategory category ->
@@ -127,12 +128,14 @@ class GCAnalyzer {
                 @Override
                 void valueChanged(TreeSelectionEvent e) {
                     Object nodeWrapperAsObject = ((DefaultMutableTreeNode) e.path.getLastPathComponent())?.userObject
-                    if (!(nodeWrapperAsObject instanceof ChartPanelNodeWrapper))
+                    CardLayout layout = (CardLayout) graphPanels.getLayout()
+                    if (!(nodeWrapperAsObject instanceof ChartPanelNodeWrapper)) {
+                        layout.show(graphPanels, "")
                         return
+                    }
                     ChartPanelNodeWrapper nodeWrapper = (ChartPanelNodeWrapper) nodeWrapperAsObject
                     if (!nodeWrapper)
                         return
-                    CardLayout layout = (CardLayout) graphPanels.getLayout()
                     layout.show(graphPanels, nodeWrapper.toString())
                 }
             })
