@@ -2,6 +2,12 @@ package net.milanaleksic.gcanalyzer.graphing
 
 public enum GCEventCategory {
 
+    HEAP_CALCULATION {
+        @Override
+        String getTitle() {
+            return "Heap calculation"
+        }
+    },
     MEMORY_MAX_SIZE {
         @Override
         String getTitle() {

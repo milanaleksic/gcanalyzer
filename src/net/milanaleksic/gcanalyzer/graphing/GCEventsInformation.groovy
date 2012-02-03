@@ -24,6 +24,11 @@ class GCEventsInformation {
 
     JFreeChart[] getChartsForCategory(GCEventCategory category) {
         switch (category) {
+            case GCEventCategory.HEAP_CALCULATION:
+                return [
+                        getLiveSizeChart(),
+                        getPermGenSizeChart()
+                    ]
             case GCEventCategory.MEMORY_MAX_SIZE:
                 return [
                         getHeapWithoutPermanentGenerationGCChart(),
@@ -49,6 +54,24 @@ class GCEventsInformation {
                         getYoungGCEventTimingsChart(),
                         getFullGCEventTimingsChart()
                 ]
+        }
+    }
+
+    JFreeChart getLiveSizeChart() {
+        return getTimeChartBasedOnIndependentEvents('Memory live size', 'Memory (KB)') {
+            GCEvent event ->
+                if (!event.fullGarbageCollection)
+                    return null
+                return event.stats['ParOldGen'].endValueInB / 1024
+        }
+    }
+
+    JFreeChart getPermGenSizeChart() {
+        return getTimeChartBasedOnIndependentEvents('Permanent generation size after Full GC', 'Memory (KB)') {
+            GCEvent event ->
+                if (!event.fullGarbageCollection)
+                    return null
+                return event.stats['PSPermGen'].endValueInB / 1024
         }
     }
 
