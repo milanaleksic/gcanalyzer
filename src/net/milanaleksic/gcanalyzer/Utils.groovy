@@ -25,4 +25,11 @@ class Utils {
         calendar.set(Calendar.MILLISECOND, 0)
         return calendar.getTime()
     }
+
+    public static String getStackTrace(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        return sw.toString();
+    }
 }

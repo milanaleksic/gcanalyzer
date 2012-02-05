@@ -27,7 +27,9 @@ class GCEventsInformation {
             case GCEventCategory.HEAP_CALCULATION:
                 return [
                         getLiveSizeChart(),
-                        getPermGenSizeChart()
+                        getPermGenSizeChart(),
+                        getOldGenerationMemoryOccupancy(),
+                        getPermGenerationMemoryOccupancy()
                     ]
             case GCEventCategory.MEMORY_MAX_SIZE:
                 return [
@@ -54,6 +56,24 @@ class GCEventsInformation {
                         getYoungGCEventTimingsChart(),
                         getFullGCEventTimingsChart()
                 ]
+        }
+    }
+
+    JFreeChart getOldGenerationMemoryOccupancy() {
+        return getTimeChartBasedOnIndependentEvents('Old generation memory occupancy after GC events', '%') {
+            GCEvent event ->
+                if (!event.fullGarbageCollection)
+                    return null
+                return event.stats['ParOldGen'].endValueInB * 100 / event.stats['ParOldGen'].maxValueInB
+        }
+    }
+
+    JFreeChart getPermGenerationMemoryOccupancy() {
+        return getTimeChartBasedOnIndependentEvents('Permanent generation memory occupancy after GC events', '%') {
+            GCEvent event ->
+                if (!event.fullGarbageCollection)
+                    return null
+                return event.stats['PSPermGen'].endValueInB * 100 / event.stats['PSPermGen'].maxValueInB
         }
     }
 

@@ -13,6 +13,7 @@ import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import java.awt.*
 import javax.swing.*
+import java.lang.Thread.UncaughtExceptionHandler
 
 /**
  * User: Milan Aleksic
@@ -20,6 +21,8 @@ import javax.swing.*
  * Time: 11:09 AM
  */
 class GCAnalyzer {
+
+    public static final int STACK_TRACE_MAX_LENGTH = 1536
 
     public static void main(String[] args) {
         new GCAnalyzer(args: args).exec()
@@ -36,6 +39,13 @@ class GCAnalyzer {
     private static final String TITLE = 'Garbage Collector Log analysis'
 
     public def exec() {
+        Thread.setDefaultUncaughtExceptionHandler({ Thread t, Throwable e ->
+            def stackTrace = Utils.getStackTrace(e)
+            if (stackTrace && stackTrace.size()>STACK_TRACE_MAX_LENGTH)
+                stackTrace = stackTrace.substring(0,STACK_TRACE_MAX_LENGTH)+"..."
+            JOptionPane.showMessageDialog(null, "Exception occurred: ${e.getMessage()}\r\n\r\nDetails:\r\n${stackTrace}")
+        } as UncaughtExceptionHandler)
+
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         } catch (Throwable ignored) {
