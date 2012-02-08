@@ -8,6 +8,12 @@ public enum GCEventCategory {
             return "Heap calculation"
         }
     },
+    MEMORY_OCCUPANCY {
+        @Override
+        String getTitle() {
+            return "Memory occupancy"
+        }
+    },
     MEMORY_MAX_SIZE {
         @Override
         String getTitle() {

@@ -30,14 +30,20 @@ class GCEventsInformation {
                         getPermGenSizeChart(),
                         getOldGenerationMemoryOccupancy(),
                         getOldGenerationIncreaseChart(),
-                        getPermGenerationMemoryOccupancy()
+                        getPermGenerationMaxChart()
                     ]
+            case GCEventCategory.MEMORY_OCCUPANCY:
+                return [
+                        getYoungGenerationChart(),
+                        getLiveSizeChart(),
+                        getPermGenerationChart()
+                ]
             case GCEventCategory.MEMORY_MAX_SIZE:
                 return [
                         getHeapWithoutPermanentGenerationGCChart(),
-                        getYoungGenerationChart(),
-                        getOldGenerationChart(),
-                        getPermanentGenerationChart()
+                        getYoungGenerationMaxChart(),
+                        getOldGenerationMaxChart(),
+                        getPermanentGenerationMaxChart()
                 ]
             case GCEventCategory.TIME_SPENT_PER_HOUR:
                 return [
@@ -60,6 +66,13 @@ class GCEventsInformation {
         }
     }
 
+    JFreeChart getYoungGenerationChart() {
+        return getTimeChartBasedOnIndependentEvents('Young generation memory after GC events', 'Memory (KB)') {
+            GCEvent event ->
+                return event.stats['PSYoungGen'].endValueInB / 1024
+        }
+    }
+
     JFreeChart getOldGenerationIncreaseChart() {
         return getTimeChartBasedOnTwoConsecutiveEvents('Old generation increase per event', 'Memory (KB)') {
             GCEvent previousEvent, GCEvent event ->
@@ -78,7 +91,16 @@ class GCEventsInformation {
         }
     }
 
-    JFreeChart getPermGenerationMemoryOccupancy() {
+    JFreeChart getPermGenerationChart() {
+        return getTimeChartBasedOnIndependentEvents('Permanent generation memory occupancy after GC events', 'Memory (KB)') {
+            GCEvent event ->
+                if (!event.fullGarbageCollection)
+                    return null
+                return event.stats['PSPermGen'].endValueInB / 1024
+        }
+    }
+
+    JFreeChart getPermGenerationMaxChart() {
         return getTimeChartBasedOnIndependentEvents('Permanent generation memory occupancy after GC events', '%') {
             GCEvent event ->
                 if (!event.fullGarbageCollection)
@@ -88,7 +110,7 @@ class GCEventsInformation {
     }
 
     JFreeChart getLiveSizeChart() {
-        return getTimeChartBasedOnIndependentEvents('Memory live size', 'Memory (KB)') {
+        return getTimeChartBasedOnIndependentEvents('Memory live size (Old gen memory occupancy after Full GCs)', 'Memory (KB)') {
             GCEvent event ->
                 if (!event.fullGarbageCollection)
                     return null
@@ -133,21 +155,21 @@ class GCEventsInformation {
         }
     }
 
-    JFreeChart getYoungGenerationChart() {
+    JFreeChart getYoungGenerationMaxChart() {
         return getTimeChartBasedOnIndependentEvents('Young generation Max Size', 'Memory (KB)') {
             GCEvent event ->
                 return event.stats['PSYoungGen'].maxValueInB / 1024
         }
     }
 
-    JFreeChart getOldGenerationChart() {
+    JFreeChart getOldGenerationMaxChart() {
         return getTimeChartBasedOnIndependentEvents('Old generation Max Size', 'Memory (KB)') { GCEvent event ->
             SingleGCStatistic value = event.stats['ParOldGen']
             return value ? value.maxValueInB / 1024 : null
         }
     }
 
-    JFreeChart getPermanentGenerationChart() {
+    JFreeChart getPermanentGenerationMaxChart() {
         return getTimeChartBasedOnIndependentEvents('Permanent generation Max Size', 'Memory (KB)') { GCEvent event ->
             SingleGCStatistic value = event.stats['PSPermGen']
             return value ? value.maxValueInB / 1024 : null
