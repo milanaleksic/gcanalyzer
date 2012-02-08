@@ -29,6 +29,7 @@ class GCEventsInformation {
                         getLiveSizeChart(),
                         getPermGenSizeChart(),
                         getOldGenerationMemoryOccupancy(),
+                        getOldGenerationIncreaseChart(),
                         getPermGenerationMemoryOccupancy()
                     ]
             case GCEventCategory.MEMORY_MAX_SIZE:
@@ -56,6 +57,15 @@ class GCEventsInformation {
                         getYoungGCEventTimingsChart(),
                         getFullGCEventTimingsChart()
                 ]
+        }
+    }
+
+    JFreeChart getOldGenerationIncreaseChart() {
+        return getTimeChartBasedOnTwoConsecutiveEvents('Old generation increase per event', 'Memory (KB)') {
+            GCEvent previousEvent, GCEvent event ->
+                def previousOldGenerationSize = (previousEvent.stats[null].endValueInB - previousEvent.stats['PSYoungGen'].endValueInB)
+                def currentOldGenerationSize = (event.stats[null].endValueInB - event.stats['PSYoungGen'].endValueInB)
+                return (currentOldGenerationSize - previousOldGenerationSize) / 1024
         }
     }
 
@@ -249,6 +259,22 @@ class GCEventsInformation {
         def axis = (DateAxis) plot.getDomainAxis();
         axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"));
         return chart
+    }
+
+    private JFreeChart getTimeChartBasedOnTwoConsecutiveEvents(String graphName, String yAxisName, Closure process) {
+        return getTimeChart(graphName, yAxisName) { TimeSeries series ->
+            def previousDate = null
+            def previousEvent = null
+            events.hashMapOnDate.each { Date date, GCEvent event ->
+                if (previousEvent && previousDate) {
+                    Number value = (Number) process(previousEvent, event)
+                    if (value)
+                        series.add(new Millisecond(date), value)
+                }
+                previousDate = date
+                previousEvent = event
+            }
+        }
     }
 
 }
