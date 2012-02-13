@@ -275,11 +275,11 @@ class GCEventsInformation {
 
         dataSet.addSeries(series)
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
-            graphName, 'Time', yAxisName, dataSet, true, true, false);
+            graphName, 'Time', yAxisName, dataSet, true, true, false)
         XYPlot plot = (XYPlot) chart.getPlot()
 
-        def axis = (DateAxis) plot.getDomainAxis();
-        axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"));
+        def axis = (DateAxis) plot.getDomainAxis()
+        axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"))
         return chart
     }
 

@@ -1,9 +1,7 @@
 package net.milanaleksic.gcanalyzer
 
-import groovy.io.FileType
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.event.TreeSelectionEvent
 import javax.swing.event.TreeSelectionListener
 import javax.swing.tree.DefaultMutableTreeNode
@@ -13,63 +11,35 @@ import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import java.awt.*
 import javax.swing.*
-import java.lang.Thread.UncaughtExceptionHandler
 
-/**
- * User: Milan Aleksic
- * Date: 1/29/12
- * Time: 11:09 AM
- */
 class GCAnalyzer {
 
-    public static final int STACK_TRACE_MAX_LENGTH = 1536
-
-    public static void main(String[] args) {
-        new GCAnalyzer(args: args).exec()
-    }
-
-    private JFrame frame
     private JTabbedPane fileTabs
     private JTextField fileNameTextField
 
-    private String[] args
+    private Container container
 
-    private AtomicInteger counter = new AtomicInteger(0)
+    private FileParsingFinishedListener fileParsingFinishedListener
 
-    private static final String TITLE = 'Garbage Collector Log analysis'
-
-    public def exec() {
-        Thread.setDefaultUncaughtExceptionHandler({ Thread t, Throwable e ->
-            def stackTrace = Utils.getStackTrace(e)
-            if (stackTrace && stackTrace.size()>STACK_TRACE_MAX_LENGTH)
-                stackTrace = stackTrace.substring(0,STACK_TRACE_MAX_LENGTH)+"..."
-            JOptionPane.showMessageDialog(null, "Exception occurred: ${e.getMessage()}\r\n\r\nDetails:\r\n${stackTrace}")
-        } as UncaughtExceptionHandler)
-
+    public static def setUpNimbusLookAndFeel() {
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
         } catch (Throwable ignored) {
             try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
             } catch (Throwable ignored2) {
             }
         }
-        frame = new JFrame(TITLE)
+    }
 
-        frame.add(getMainAnalyzerPanel(), BorderLayout.NORTH)
+    def initGui() {
+        container.setLayout(new BorderLayout())
+        container.add(getMainAnalyzerPanel(), BorderLayout.NORTH)
 
         fileTabs = new JTabbedPane()
         fileTabs.add("Heap size recommendations", new HeapSizeRecommendationsPanel())
 
-        frame.add(fileTabs)
-        frame.setPreferredSize(new Dimension(750, 550))
-        frame.setLocation(new Point(100, 100))
-        frame.pack()
-        frame.setExtendedState((int) frame.getExtendedState() | JFrame.MAXIMIZED_BOTH)
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-        frame.setVisible(true)
-
-        startRequestedFilesParsing()
+        container.add(fileTabs)
     }
 
     private JPanel getMainAnalyzerPanel() {
@@ -92,38 +62,13 @@ class GCAnalyzer {
         return panel
     }
 
-    void startRequestedFilesParsing() {
-        if (!args || args.size() == 0)
-            return
-        new Thread({
-            def files = []
-            args.each { String filename ->
-                def file = new File(filename)
-                if (file.isDirectory()) {
-                    file.eachFile(FileType.FILES) { File childFile ->
-                        files << childFile.absolutePath
-                    }
-                }
-                else
-                    files << filename
-            }
-            if (files.size() > 0) {
-                frame.setTitle("$TITLE - Parsing input")
-                counter.set(files.size())
-                files.each {
-                    addFile(it)
-                }
-            }
-        } as Runnable).run()
-    }
-
     void addFile(String fileName) {
         def gcEventsInformation = new GCEventsInformation(fileName)
         JSplitPane fileAnalysisPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
         JPanel graphPanels = new JPanel(new CardLayout())
         graphPanels.add(new JPanel(), "")
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Analysis graph");
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Analysis graph")
         GCEventCategory.each { GCEventCategory category ->
             DefaultMutableTreeNode categoryNode = new DefaultMutableTreeNode(category.getTitle())
             root.add(categoryNode)
@@ -133,7 +78,7 @@ class GCAnalyzer {
             }
         }
         SwingUtilities.invokeLater {
-            JTree tree = new JTree(root);
+            JTree tree = new JTree(root)
             tree.addTreeSelectionListener(new TreeSelectionListener() {
                 @Override
                 void valueChanged(TreeSelectionEvent e) {
@@ -153,10 +98,13 @@ class GCAnalyzer {
             fileAnalysisPanel.add(graphPanels)
 
             fileTabs.add(new File(fileName).name, fileAnalysisPanel)
-            if (counter.decrementAndGet() == 0) {
-                frame.setTitle(TITLE)
-            }
+            fireFileParsingFinishedEvent(fileName)
         } as Runnable
+    }
+
+    private def fireFileParsingFinishedEvent(String fileName) {
+        if (fileParsingFinishedListener)
+            fileParsingFinishedListener.onFileParsingFinished(fileName)
     }
 
     def addGraph(DefaultMutableTreeNode root, JPanel graphPanels, ChartPanel chartPanel) {
@@ -167,5 +115,4 @@ class GCAnalyzer {
         DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(wrapper)
         root.add(newNode)
     }
-
 }

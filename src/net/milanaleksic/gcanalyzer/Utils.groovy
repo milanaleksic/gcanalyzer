@@ -27,9 +27,9 @@ class Utils {
     }
 
     public static String getStackTrace(Throwable t) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        t.printStackTrace(pw);
-        return sw.toString();
+        StringWriter sw = new StringWriter()
+        PrintWriter pw = new PrintWriter(sw)
+        t.printStackTrace(pw)
+        return sw.toString()
     }
 }
