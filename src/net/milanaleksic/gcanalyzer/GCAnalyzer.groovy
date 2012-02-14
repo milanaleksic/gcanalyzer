@@ -14,10 +14,8 @@ import javax.swing.*
 
 class GCAnalyzer {
 
-    private JTabbedPane fileTabs
+    private Container fileAnalysisContainer
     private JTextField fileNameTextField
-
-    private Container container
 
     private FileParsingFinishedListener fileParsingFinishedListener
 
@@ -32,17 +30,22 @@ class GCAnalyzer {
         }
     }
 
-    def initGui() {
+    def initGuiForApplication(Container container) {
         container.setLayout(new BorderLayout())
-        container.add(getMainAnalyzerPanel(), BorderLayout.NORTH)
+        container.add(getHeaderPanel(), BorderLayout.NORTH)
 
-        fileTabs = new JTabbedPane()
-        fileTabs.add("Heap size recommendations", new HeapSizeRecommendationsPanel())
+        fileAnalysisContainer = new JTabbedPane()
+        fileAnalysisContainer.add("Heap size recommendations", new HeapSizeRecommendationsPanel())
 
-        container.add(fileTabs)
+        container.add(fileAnalysisContainer)
     }
 
-    private JPanel getMainAnalyzerPanel() {
+    def initGuiForApplet(Container container) {
+        container.setLayout(new BorderLayout())
+        fileAnalysisContainer = container
+    }
+
+    private JPanel getHeaderPanel() {
         JPanel panel = new JPanel()
         def constraints = new GridBagConstraints()
         panel.setLayout(new GridBagLayout())
@@ -62,8 +65,15 @@ class GCAnalyzer {
         return panel
     }
 
-    void addFile(String fileName) {
-        def gcEventsInformation = new GCEventsInformation(fileName)
+    void addFile(String filename) {
+        createGuiForEvents(new GCEventsInformation(filename))
+    }
+
+    void addUrl(URL url) {
+        createGuiForEvents(new GCEventsInformation(url))
+    }
+
+    private def createGuiForEvents(GCEventsInformation gcEventsInformation) {
         JSplitPane fileAnalysisPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
         JPanel graphPanels = new JPanel(new CardLayout())
         graphPanels.add(new JPanel(), "")
@@ -97,8 +107,11 @@ class GCAnalyzer {
             fileAnalysisPanel.add(tree)
             fileAnalysisPanel.add(graphPanels)
 
-            fileTabs.add(new File(fileName).name, fileAnalysisPanel)
-            fireFileParsingFinishedEvent(fileName)
+            if (fileAnalysisContainer instanceof JTabbedPane)
+                fileAnalysisContainer.add(gcEventsInformation.getTitle(), fileAnalysisPanel)
+            else
+                fileAnalysisContainer.add(fileAnalysisPanel)
+            fireFileParsingFinishedEvent(gcEventsInformation.getTitle())
         } as Runnable
     }
 

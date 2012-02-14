@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0+" codebase="" href="">
+    <information>
+        <title>GC Analyzer</title>
+        <vendor>milanaleksic@gmail.com</vendor>
+    </information>
+    <resources>
+        <j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se"/>
+        <jar href="GCAnalyzer-signed.jar" main="true"/>
+    </resources>
+    <applet-desc name="GC Analyzer" main-class="net.milanaleksic.gcanalyzer.GCAnalyzerApplet" width="750" height="450">
+    </applet-desc>
+    <security>
+        <all-permissions/>
+    </security>
+    <update check="background"/>
+</jnlp>

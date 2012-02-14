@@ -109,4 +109,47 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <version>1.2</version>
+                        <executions>
+                            <execution>
+                                <id>signing</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <inherited>true</inherited>
+                                <configuration>
+                                    <archiveDirectory>${project.build.directory}</archiveDirectory>
+                                    <removeExistingSignatures>false</removeExistingSignatures>
+                                    <includes>
+                                        <include>${project.artifactId}-without-all-unnecessary-dependencies.jar
+                                        </include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>${project.artifactId}.jar</exclude>
+                                    </excludes>
+                                    <processMainArtifact>false</processMainArtifact>
+                                    <keystore>${sign.keystore}</keystore>
+                                    <storepass>${sign.storepass}</storepass>
+                                    <keypass>${sign.keypass}</keypass>
+                                    <alias>${sign.alias}</alias>
+                                    <verbose>true</verbose>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

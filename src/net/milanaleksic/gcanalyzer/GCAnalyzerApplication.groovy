@@ -40,8 +40,8 @@ class GCAnalyzerApplication implements FileParsingFinishedListener {
         SwingUtilities.invokeAndWait {
             frame = new JFrame(TITLE)
 
-            analyzer = new GCAnalyzer(container: frame, fileParsingFinishedListener: this)
-            analyzer.initGui()
+            analyzer = new GCAnalyzer(fileParsingFinishedListener: this)
+            analyzer.initGuiForApplication(frame)
 
             frame.setPreferredSize(new Dimension(750, 550))
             frame.setLocation(new Point(100, 100))

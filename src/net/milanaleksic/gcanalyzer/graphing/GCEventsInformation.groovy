@@ -8,6 +8,9 @@ import org.jfree.chart.axis.DateAxis
 import org.jfree.chart.plot.XYPlot
 import net.milanaleksic.gcanalyzer.parser.*
 import org.jfree.data.time.*
+import java.awt.Paint
+import java.awt.Color
+import org.jfree.chart.axis.ValueAxis
 
 /**
  * User: Milan Aleksic
@@ -18,8 +21,17 @@ class GCEventsInformation {
 
     private def GCEvents events
 
+    private String title
+
+    GCEventsInformation(URL url) {
+        title = url.getPath()
+        events = new GCLogParser().parse(url)
+    }
+
     GCEventsInformation(String fileName) {
-        events = new GCLogParser().parse(new File(fileName))
+        File target = new File(fileName)
+        title = target.name
+        events = new GCLogParser().parse(target)
     }
 
     JFreeChart[] getChartsForCategory(GCEventCategory category) {
@@ -277,9 +289,14 @@ class GCEventsInformation {
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
             graphName, 'Time', yAxisName, dataSet, true, true, false)
         XYPlot plot = (XYPlot) chart.getPlot()
+        plot.backgroundPaint = Color.WHITE
+        plot.renderer.setSeriesPaint(0, Color.BLUE)
+        plot.setDomainGridlinePaint(Color.GRAY)
+        plot.setRangeGridlinePaint(Color.GRAY)
 
         def axis = (DateAxis) plot.getDomainAxis()
         axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"))
+        axis.setTickMarkPaint(Color.GRAY)
         return chart
     }
 
@@ -299,4 +316,7 @@ class GCEventsInformation {
         }
     }
 
+    public String getTitle() {
+        return title
+    }
 }

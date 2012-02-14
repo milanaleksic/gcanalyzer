@@ -56,6 +56,19 @@ class GCLogParser {
 
     private static final Pattern timingDetailsRegEx = Pattern.compile(timingDetails, Pattern.COMMENTS)
 
+    GCEvents parse(URL url) {
+        String remoteFileContent
+        InputStream remoteFileStream
+        try {
+            remoteFileStream = url.openStream()
+            remoteFileContent = remoteFileStream.text
+        } finally {
+            if (remoteFileStream)
+                remoteFileStream.close()
+        }
+        parse(remoteFileContent)
+    }
+
     GCEvents parse(File file) {
         parse(file.text)
     }

@@ -1,0 +1,61 @@
+Command prompt log from keystore creation process:
+
+                    Microsoft Windows XP [Version 5.1.2600]
+                    (C) Copyright 1985-2001 Microsoft Corp.
+
+                    c:\Milan\SourceCode\GCAnalyzer\conf>"C:\Program Files\java\jdk1.7.0_02\bin\keytool.exe" -genkey -keystore myKeystore.jks
+                     -alias MilanAleksic
+                    Enter keystore password:
+                    Keystore password is too short - must be at least 6 characters
+                    Enter keystore password:
+                    Re-enter new password:
+                    What is your first and last name?
+                      [Unknown]:  Milan Aleksic
+                    What is the name of your organizational unit?
+                      [Unknown]:  www.milanaleksic.net
+                    What is the name of your organization?
+                      [Unknown]:  www.milanaleksic.net
+                    What is the name of your City or Locality?
+                      [Unknown]:  Brussels
+                    What is the name of your State or Province?
+                      [Unknown]:  Belgium
+                    What is the two-letter country code for this unit?
+                      [Unknown]:  MA
+                    Is CN=Milan Aleksic, OU=www.milanaleksic.net, O=www.milanaleksic.net, L=Brussels, ST=Belgium, C=MA correct?
+                      [no]:  yes
+
+                    Enter key password for <MilanAleksic>
+                            (RETURN if same as keystore password):
+                    Re-enter new password:
+
+                    c:\Milan\SourceCode\GCAnalyzer\conf>"C:\Program Files\java\jdk1.7.0_02\bin\keytool.exe" -selfcert -alias MilanAleksic -k
+                    eystore myKeystore.jks
+                    Enter keystore password:
+
+                    c:\Milan\SourceCode\GCAnalyzer\conf>"C:\Program Files\java\jdk1.7.0_02\bin\keytool.exe" -list -keystore myKeystore.jks
+                    Enter keystore password:
+
+                    Keystore type: JKS
+                    Keystore provider: SUN
+
+                    Your keystore contains 1 entry
+
+                    milanaleksic, Feb 14, 2012, PrivateKeyEntry,
+                    Certificate fingerprint (SHA1): BD:A4:4D:58:5B:75:37:1D:19:AC:D3:49:F6:4E:AA:5F:73:53:F9:72
+
+
+------------------------------------------------------------
+
+
+Lines that should be placed in Policy file for Java 7 JRE:
+
+C:\Program Files\Java\jre7\lib\security\java.policy
+
+
+
+// Milan Aleksic keystore
+
+keystore "file://c:/Milan/SourceCode/GCAnalyzer/conf/myKeyStore.jks";
+grant signedBy "MilanAleksic" {
+	permission java.security.AllPermission;
+};
