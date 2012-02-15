@@ -6,7 +6,7 @@
     </information>
     <resources>
         <j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se"/>
-        <jar href="GCAnalyzer-signed.jar" main="true"/>
+        <jar href="gcanalyzer-1.0-SNAPSHOT-without-all-unnecessary-dependencies.jar" main="true"/>
     </resources>
     <applet-desc name="GC Analyzer" main-class="net.milanaleksic.gcanalyzer.GCAnalyzerApplet" width="750" height="450">
     </applet-desc>
