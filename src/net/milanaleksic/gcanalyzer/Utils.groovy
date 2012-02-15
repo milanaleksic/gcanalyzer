@@ -32,4 +32,18 @@ class Utils {
         t.printStackTrace(pw)
         return sw.toString()
     }
+
+    public static String getApplicationVersion() {
+        InputStream stream
+        try {
+            stream = Utils.class.getResourceAsStream("version.txt")
+            if (stream == null)
+                throw new IOException("Resource not found: version.txt")
+            return stream.text
+        } finally {
+            if (stream)
+                stream.close()
+        }
+    }
+
 }

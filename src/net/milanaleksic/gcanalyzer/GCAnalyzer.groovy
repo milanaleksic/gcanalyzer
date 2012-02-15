@@ -38,11 +38,13 @@ class GCAnalyzer {
         fileAnalysisContainer.add("Heap size recommendations", new HeapSizeRecommendationsPanel())
 
         container.add(fileAnalysisContainer)
+        container.add(getFooterVersionLabel(), BorderLayout.SOUTH)
     }
 
     def initGuiForApplet(Container container) {
         container.setLayout(new BorderLayout())
         fileAnalysisContainer = container
+        container.add(getFooterVersionLabel(), BorderLayout.SOUTH)
     }
 
     private JPanel getHeaderPanel() {
@@ -63,6 +65,14 @@ class GCAnalyzer {
         constraints.weightx = 0.1
         panel.add(button, constraints)
         return panel
+    }
+
+    private JLabel getFooterVersionLabel() {
+        JLabel label = new JLabel("GC Analyzer v${Utils.getApplicationVersion()} by milan.aleksic@gmail.com")
+        label.setBackground(Color.GRAY)
+        label.font = new Font("Arial", Font.PLAIN, 10)
+        label.setHorizontalAlignment(JLabel.CENTER)
+        return label
     }
 
     void addFile(String filename) {
@@ -104,8 +114,9 @@ class GCAnalyzer {
                     layout.show(graphPanels, nodeWrapper.toString())
                 }
             })
-            fileAnalysisPanel.add(tree)
-            fileAnalysisPanel.add(graphPanels)
+            fileAnalysisPanel.setLeftComponent(new JScrollPane(tree))
+            fileAnalysisPanel.setRightComponent(graphPanels)
+            fileAnalysisPanel.setDividerLocation(250)
 
             if (fileAnalysisContainer instanceof JTabbedPane)
                 fileAnalysisContainer.add(gcEventsInformation.getTitle(), fileAnalysisPanel)
