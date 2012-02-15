@@ -1,38 +1,64 @@
 <?xml version="1.0"?>
-<RegexProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Regex>(\d{4})-(\d{2})-(\d{2})T         # 1, 2, 3 - date parts
-(\d{2}):(\d{2}):(\d{2})\.(\d{3}) # 4, 5, 6, 7 - time parts
-\+\d{4}:\s                       # [noise]
-(\d+\.\d+):\s                    # 8 - time in seconds from program start
-\[([^\[]+)\s                     # 9 - Garbage collection event
-(                                # 10 - [helper group, don't use]
-    (\[                          # 11 - [helper group, don't use]
-        (                        # 12 - [helper group, don't use]
-			(\w+)\:\s            # 13 - GC name
-			([\dK]+)-&gt;           # 14 - GC start value
-			([\dK]+)\(           # 15 - GC end value 
-			([\dK]+)\)           # 16 - memory segment Max size
-		)+
-    \]\s?)
-	|
-(                                # 17 - [helper group, don't use]
-    ([\dK]+)-&gt;                   # 18 - non-PermGen start value
-	([\dK]+)\(                   # 19 - non-PermGen end value
-	([\dK]+)\)\s?                # 20 - non-PermGen Max size
-))+
-,\s([\d\.]+)\ssecs\]             # 21 - total garbage collection event time
-(\s\[Times:\s                    # 22 - [helper group, don't use]
-	(                            # 23 - helper group, don't use
-		(\w+)=                   # 24 - timing name (user/sys/real)
-		([\d\.]+)                # 25 - timing value (user/sys/real)
-	,?\s)+       
-secs\]\s?)?</Regex>
-  <Input>2012-01-22T18:12:13.107+0000: 0.632: [Full GC (System) [PSYoungGen: 496K-&gt;0K(12800K)] [ParOldGen: 1321K-&gt;1755K(6400K)] 1817K-&gt;1755K(19200K) [PSPermGen: 7898K-&gt;7888K(15872K)], 0.0740170 secs] [Times: user=0.07 sys=0.00, real=0.08 secs] 
+<RegexProject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Regex>        (\d{4})-(\d{2})-(\d{2})T         # 1, 2, 3 (GROUP_MAIN_DATE_YEAR, GROUP_MAIN_DATE_MONTH, GROUP_MAIN_DATE_DATE) - date parts
+        (\d{2}):(\d{2}):(\d{2})\.(\d{3}) # 4, 5, 6, 7 (GROUP_MAIN_DATE_HOUR, GROUP_MAIN_DATE_MIN, GROUP_MAIN_DATE_SEC, GROUP_MAIN_DATE_MILLIS) - time parts
+        \+\d{4}:\s
+        (\d+\.\d+):\s                    # 8 (GROUP_MAIN_TIME_SINCE_PROGRAM_START) - time in seconds from program start
+        \[
+		(                                # 9 (GROUP_MAIN_EVENT_NAME) - Garbage collection event
+			([Ful\s]+)?                  # 10 (GROUP_MAIN_STATISTICS_SUBGROUP) - [sub-group]
+			GC\s?
+			(\(System\))?                # 11 - [helper group]
+		)                    
+		(                                # 12 - [helper group]
+			[^\d]+
+			(\d+)                        # 13 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
+			[^\d]+
+			(\d+)                        # 14 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
+			[^\(]+
+			\(max\s
+			(\d+)                        # 15 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
+			(                            # 16 - [helper group]
+				[^\d\[]+
+				(                        # 17 - [helper group]
+					(\d+)(?=\stotal\s)   # 18 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
+				)?
+				(\d+)?                   # 19 - [helper group]
+			)+
+		)?\s                           
+        (                                # 20 - [helper group]
+            (                            # 21 - [helper group]
+                (\[                      # 22/1 - [helper group]
+                     (                   # 23/2 - [helper group]
+                         (\w+)\:\s       # 24/3 (GROUP_STATS_GC_NAME) - GC name
+                         ([\dKMG]+)-&gt;    # 25/4 (GROUP_STATS_GC_START_VALUE) - GC start value
+                         ([\dKMG]+)\(    # 26/5 (GROUP_STATS_GC_END_VALUE) - GC end value
+                         ([\dKMG]+)\)    # 27/6 (GROUP_STATS_GC_MAX_VALUE) - memory segment Max size
+                     )+
+                 \]\s?)
+                |
+                (                        # 28/7 - [helper group]
+                    ([\dKMG]+)-&gt;         # 29/8 (GROUP_STATS_GC_COMPLETE_START_VALUE) - non-PermGen start value
+                    ([\dKMG]+)\(         # 30/9 (GROUP_STATS_GC_COMPLETE_END_VALUE) - non-PermGen end value
+                    ([\dKMG]+)\)\s?      # 31/10 (GROUP_STATS_GC_COMPLETE_MAX_VALUE) - non-PermGen Max size
+                )
+            )+
+        )
+        ,\s([\d\.]+)\ssecs\]             # 32 (GROUP_MAIN_TIMING_TOTAL) - total garbage collection event time
+        \s?
+        (\[Times:\s                      # 33 (GROUP_MAIN_TIMING_SUBGROUP) - [sub-group]
+            (                            # 34 - [helper group]
+                (\w+)=                   # 35/1 (GROUP_TIMINGS_TITLE) - timing name (user, sys, real)
+                ([\d\.]+)                # 36/2 (GROUP_TIMINGS_VALUE) - timing value (user, sys, real)
+            ,?\s)+
+        secs\]\s?)?</Regex>
+  <Input>2012-02-15T11:44:56.162+0100: 0.428: [GCDesired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   16690480 bytes,   16690480 total [PSYoungGen: 8959K-&gt;631K(8960K)] 10158K-&gt;3053K(19904K), 0.0029015 secs] [Times: user=0.01 sys=0.02, real=0.03 secs]
+2012-02-15T11:44:56.162+0100: 0.428: [GCDesired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   12345678 bytes,   232323 total - age   2:   56565656 bytes,   89898989 total [PSYoungGen: 8959K-&gt;631K(8960K)] 10158K-&gt;3053K(19904K), 0.0029015 secs] [Times: user=0.01 sys=0.02, real=0.03 secs]
+2012-01-22T18:12:13.107+0000: 0.632: [Full GC (System) [PSYoungGen: 496K-&gt;0K(12800K)] [ParOldGen: 1321K-&gt;1755K(6400K)] 1817K-&gt;1755K(19200K) [PSPermGen: 7898K-&gt;7888K(15872K)], 0.0740170 secs] [Times: user=0.07 sys=0.00, real=0.08 secs] 
 2012-01-22T18:12:12.737+0000: 0.262: [GC [PSYoungGen: 3072K-&gt;502K(3584K)] 3072K-&gt;594K(9984K), 0.0052240 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
-2012-01-22T18:12:12.895+0000: 0.420: [GC [PSYoungGen: 3574K-&gt;504K(6656K)] 3666K-&gt;1112K(13056K), 0.0057690 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
 2012-01-25T17:22:51.036+0000: 256238.562: [GC [PSYoungGen: 46976K-&gt;888K(47744K)] 64947K-&gt;18859K(75520K), 0.0047440 secs]</Input>
   <Options>IgnoreCase Multiline Singleline IgnorePatternWhitespace</Options>
-  <FileName>M:\SourceCode\workspaces\GanymedeWorkspace\WARPToolkit\resources\gc\regex.express</FileName>
+  <FileName>C:\Milan\SourceCode\GCAnalyzer\docs\regex.express</FileName>
   <ReplaceString />
   <InputFilename>M:\SourceCode\workspaces\GanymedeWorkspace\WARPToolkit\resources\gc\gc_log_apache_small.log</InputFilename>
   <UpdateEventsEnabled>true</UpdateEventsEnabled>

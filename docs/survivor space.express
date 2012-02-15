@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<RegexProject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Regex>[^\d]+
+(\d+)                        # 1 - desired survivor size
+[^\d]+
+(\d+)                        # 2 - new threshold
+[^\(]+
+\(max\s
+(\d+)                        # 3 - max threshold
+(                            # 4 - [helper group]
+	[^\d]+
+	(                        # 5 - [helper group]
+		(\d+)(?=\stotal\s\Z) # 6 - total survivor occupancy in the non-empty survivor space
+	)?
+	(\d+)?                   # 7 - [helper group] 
+)+</Regex>
+  <Input>Desired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   12345678 bytes,   232323 total - age   2:   56565656 bytes,   89898989 total </Input>
+  <Options>IgnoreCase Multiline IgnorePatternWhitespace</Options>
+  <FileName>C:\Milan\SourceCode\GCAnalyzer\docs\survivor space.express</FileName>
+  <ReplaceString />
+  <InputFilename />
+  <UpdateEventsEnabled>true</UpdateEventsEnabled>
+</RegexProject>

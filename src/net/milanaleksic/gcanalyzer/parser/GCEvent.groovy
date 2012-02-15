@@ -24,6 +24,8 @@ final class GCEvent {
 
     long completeEventTimeInMicroSeconds
 
+    GCSurvivorDetails survivorDetails
+
     public boolean isFullGarbageCollection() {
         return gcEventName?.contains('Full')
     }
