@@ -1,0 +1,54 @@
+<html>
+<head>
+    <style type="text/css">
+        table {
+            margin-top: 10px;
+        }
+        td {
+            border: 1px solid #888888;
+            padding: 4px
+        }
+        h3 {
+            font-size: 1.3em;
+            margin-top: 35px;
+        }
+    </style>
+</head>
+<body>
+<h3>Which JVM command line parameters are currently supported and expected:</h3>
+
+<pre>-XX:+UseParallelOldGC -Xloggc:&lt;log_name&gt; -XX:+PrintGCDetails -XX:+PrintGCDateStamps [-XX:+PrintTenuringDistribution]</pre>
+
+<h3>Heap sizing recommendations</h3>
+
+<p>The following recommendations are based on wonderful book by Charlie Hunt and Binu John &quot;Java Performance&quot;.</p>
+
+<table>
+    <tr>
+        <th>Space</th>
+        <th>Recommendation</th>
+        <th>How to set it up</th>
+    </tr>
+    <tr>
+        <td>Total heap</td>
+        <td>3x to 4x old generation space occupancy after Full garbage collect</td>
+        <td>-Xms and -Xmx</td>
+    </tr>
+    <tr>
+        <td>Permanent generation</td>
+        <td>1.2x to 1.5x permanent generation space occupancy after Full garbage collect</td>
+        <td>-XX:PermSize and -XX:MaxPermSize</td>
+    </tr>
+    <tr>
+        <td>Young generation</td>
+        <td>1x to 1.5x old generation space occupancy after Full garbage collect</td>
+        <td>-Xmn</td>
+    </tr>
+    <tr>
+        <td>Total heap</td>
+        <td>2x to 3x old generation space occupancy after Full garbage collect</td>
+        <td>Implied from total heap size minus the young generation</td>
+    </tr>
+</table>
+</body>
+</html>

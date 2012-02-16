@@ -1,28 +1,31 @@
 package net.milanaleksic.gcanalyzer
 
-import javax.swing.JPanel
-import java.awt.Graphics
-import javax.imageio.ImageIO
+import java.awt.BorderLayout
+import javax.swing.*
+import javax.swing.text.html.HTMLEditorKit
 
 class HeapSizeRecommendationsPanel extends JPanel {
-
-    def image
 
     HeapSizeRecommendationsPanel() {
         InputStream inputStream
         try {
-            inputStream = this.getClass().getResourceAsStream("/net/milanaleksic/gcanalyzer/heap_sizing.jpg")
-            image = ImageIO.read(inputStream)
+            inputStream = this.getClass().getResourceAsStream("/net/milanaleksic/gcanalyzer/readme.html")
+            setLayout(new BorderLayout())
+            add(getReadMePane(inputStream))
         } finally {
             if (inputStream)
                 inputStream.close()
         }
     }
 
-    @Override
-    void paint(Graphics g) {
-        super.paint(g)
-        g.drawImage(image, 0, 0, null)
+    private JComponent getReadMePane(InputStream readMe) {
+        JEditorPane area = new JEditorPane()
+        area.setEditorKit(new HTMLEditorKit());
+        area.read(readMe, 'readMe')
+        JScrollPane pane = new JScrollPane(area)
+        pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+        pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED)
+        return pane
     }
 
 }

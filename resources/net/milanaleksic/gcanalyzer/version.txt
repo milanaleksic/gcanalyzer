@@ -1,1 +1,1 @@
-${project.version} (${build.timestamp})
+${project.version} (built on ${build.timestamp})
