@@ -12,6 +12,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>dd/MM/yyyy kk:mm</maven.build.timestamp.format>
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
+        <pack200.location>${java.home}/bin/pack200</pack200.location>
+        <name.demanded.by.jnlp>${project.artifactId}__V${project.version}</name.demanded.by.jnlp>
     </properties>
 
     <dependencies>
@@ -24,6 +26,11 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>1.8.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -82,13 +89,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>never</phase>
+                        <configuration>
+                            <finalName>unwanted</finalName>
+                            <classifier>unwanted</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -96,6 +106,9 @@
     <profiles>
         <profile>
             <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -103,6 +116,7 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <version>2.3</version>
                         <configuration>
+                            <finalName>${name.demanded.by.jnlp}</finalName>
                             <descriptors>
                                 <descriptor>${basedir}/conf/assembly.xml</descriptor>
                             </descriptors>
@@ -110,7 +124,7 @@
                         <executions>
                             <execution>
                                 <id>make-assembly</id>
-                                <phase>package</phase>
+                                <phase>prepare-package</phase>
                                 <goals>
                                     <goal>single</goal>
                                 </goals>
@@ -134,17 +148,54 @@
                                     <archiveDirectory>${project.build.directory}</archiveDirectory>
                                     <removeExistingSignatures>false</removeExistingSignatures>
                                     <includes>
-                                        <include>${project.artifactId}-without-all-unnecessary-dependencies.jar
+                                        <include>${name.demanded.by.jnlp}-all.jar
                                         </include>
                                     </includes>
                                     <excludes>
-                                        <exclude>${project.artifactId}.jar</exclude>
+                                        <exclude>${name.demanded.by.jnlp}.jar</exclude>
                                     </excludes>
                                     <processMainArtifact>false</processMainArtifact>
                                     <keystore>${sign.keystore}</keystore>
                                     <storepass>${sign.storepass}</storepass>
                                     <keypass>${sign.keypass}</keypass>
                                     <alias>${sign.alias}</alias>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>repack-jar-before-signing</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${pack200.location}</executable>
+                                    <workingDirectory>${project.build.directory}</workingDirectory>
+                                    <arguments>
+                                        <argument>--repack</argument>
+                                        <argument>${name.demanded.by.jnlp}-all.jar</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>compress-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${pack200.location}</executable>
+                                    <workingDirectory>${project.build.directory}</workingDirectory>
+                                    <arguments>
+                                        <argument>${name.demanded.by.jnlp}.jar.pack.gz</argument>
+                                        <argument>${name.demanded.by.jnlp}-all.jar</argument>
+                                    </arguments>
                                 </configuration>
                             </execution>
                         </executions>

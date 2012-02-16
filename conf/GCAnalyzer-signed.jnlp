@@ -5,8 +5,10 @@
         <vendor>milanaleksic@gmail.com</vendor>
     </information>
     <resources>
-        <j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se"/>
-        <jar href="gcanalyzer-1.0-SNAPSHOT-without-all-unnecessary-dependencies.jar" main="true"/>
+        <j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se" />
+        <jar href="gcanalyzer.jar" main="true" version="1.0-SNAPSHOT" />
+        <property name="jnlp.packEnabled" value="true" />
+        <property name="jnlp.versionEnabled" value="true" />
     </resources>
     <applet-desc name="GC Analyzer" main-class="net.milanaleksic.gcanalyzer.GCAnalyzerApplet" width="750" height="450">
     </applet-desc>
