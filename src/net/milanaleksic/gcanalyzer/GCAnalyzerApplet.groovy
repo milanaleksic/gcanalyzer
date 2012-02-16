@@ -1,11 +1,12 @@
 package net.milanaleksic.gcanalyzer
 
-import java.applet.Applet
 import java.awt.Font
-import javax.swing.SwingUtilities
 import javax.swing.JLabel
+import javax.swing.SwingUtilities
+import javax.swing.JApplet
+import javax.swing.JPanel
 
-class GCAnalyzerApplet extends Applet implements FileParsingFinishedListener {
+class GCAnalyzerApplet extends JApplet implements ParsingFinishedListener {
 
     private GCAnalyzer analyzer
 
@@ -14,8 +15,9 @@ class GCAnalyzerApplet extends Applet implements FileParsingFinishedListener {
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
-                    analyzer = new GCAnalyzer(fileParsingFinishedListener:GCAnalyzerApplet.this)
-                    analyzer.initGuiForApplet(GCAnalyzerApplet.this)
+                    JPanel panel = createContentPane()
+                    analyzer = new GCAnalyzer(parsingFinishedListener:GCAnalyzerApplet.this)
+                    analyzer.initGuiForApplet(panel)
                 }
             })
             loadLog(getLogLocation())
@@ -23,6 +25,12 @@ class GCAnalyzerApplet extends Applet implements FileParsingFinishedListener {
             showVeryBigErrorMessage("Problem: ${e.getMessage()}")
             e.printStackTrace()
         }
+    }
+
+    JPanel createContentPane() {
+        JPanel panel = new JPanel()
+        setContentPane(panel)
+        return panel
     }
 
     private URL getLogLocation() {
@@ -52,7 +60,7 @@ class GCAnalyzerApplet extends Applet implements FileParsingFinishedListener {
         JLabel label = new JLabel(message)
         Font font = new Font("Arial", Font.BOLD, 14)
         label.setFont(font)
-        add(label)
+        getContentPane().add(label)
     }
 
     @Override

@@ -1,24 +1,18 @@
 package net.milanaleksic.gcanalyzer
 
-import org.jfree.chart.ChartPanel
+import javax.swing.JComponent
 
-/**
- * Created by IntelliJ IDEA.
- * User: b25791
- * Date: 2/3/12
- * Time: 8:52 AM
- * To change this template use File | Settings | File Templates.
- */
 class ChartPanelNodeWrapper {
 
-    private def chartPanel
-
-    public ChartPanel getChartPanel() {
-        return chartPanel
-    }
+    protected def chartPanel
 
     @Override
     String toString() {
         return chartPanel.chart.title.text
     }
+
+    JComponent getUIComponent() {
+        return chartPanel
+    }
+
 }

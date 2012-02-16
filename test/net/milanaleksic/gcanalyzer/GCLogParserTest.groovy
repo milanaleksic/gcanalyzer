@@ -4,8 +4,8 @@ import org.junit.Test
 import net.milanaleksic.gcanalyzer.parser.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import org.junit.Ignore
 import java.text.SimpleDateFormat
+import org.hamcrest.Matchers
 
 /**
  * User: Milan Aleksic
@@ -26,6 +26,7 @@ class GCLogParserTest {
 
         assertThat(event.gcEventName, equalTo('GC'))
         assertThat(event.isFullGarbageCollection(), equalTo(false))
+        assertThat(event.isExplicitFullGarbageCollection(), equalTo(false))
 
         assertThat(event.stats.size(), equalTo(2))
         assertThat(event.stats[null].startValueInB, equalTo(60259L*1024))
@@ -47,14 +48,15 @@ class GCLogParserTest {
         // Desired survivor size 655360 bytes, new threshold 7 (max 15)
         // - age   1:   16690480 bytes,   16690480 total
         // [PSYoungGen: 8959K->631K(8960K)] 10158K->3053K(19904K), 0.0029015 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
-        GCEvents events = new GCLogParser().parse('2012-02-15T11:44:56.162+0100: 0.428: [GCDesired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   16690480 bytes,   16690480 total [PSYoungGen: 8959K->631K(8960K)] 10158K->3053K(19904K), 0.0029015 secs] [Times: user=0.01 sys=0.02, real=0.03 secs]')
+        GCEvents events = new GCLogParser().parse('2012-02-15T11:44:56.162+0100: 0.428: [Full GCDesired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   16690480 bytes,   16690480 total [PSYoungGen: 8959K->631K(8960K)] 10158K->3053K(19904K), 0.0029015 secs] [Times: user=0.01 sys=0.02, real=0.03 secs]')
         assertThat(events.size(), equalTo(1))
         GCEvent event = events.hashMapOnMillis[428L]
         assertThat(event, not(nullValue(GCEvent.class)))
         assertThat(events.hashMapOnDate[event.time], equalTo(event))
 
-        assertThat(event.gcEventName, equalTo('GC'))
-        assertThat(event.isFullGarbageCollection(), equalTo(false))
+        assertThat(event.gcEventName, equalTo('Full GC'))
+        assertThat(event.isFullGarbageCollection(), equalTo(true))
+        assertThat(event.isExplicitFullGarbageCollection(), equalTo(false))
 
         assertThat(event.survivorDetails.newThreshold, equalTo(7))
         assertThat(event.survivorDetails.maxThreshold, equalTo(15))
@@ -75,6 +77,60 @@ class GCLogParserTest {
     }
 
     @Test
+    void parseSimpleGcWithNoAgesSurvivorSize() {
+        // original text:
+        // 2012-02-15T11:44:56.162+0100: 0.428: [GC
+        // Desired survivor size 655360 bytes, new threshold 7 (max 15)
+        // - age   1:   16690480 bytes,   16690480 total
+        // [PSYoungGen: 8959K->631K(8960K)] 10158K->3053K(19904K), 0.0029015 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+        GCEvents events = new GCLogParser().parse('2013-13-25T11:44:56.162+0100: 4.432: [Full GCDesired survivor size 655360 bytes, new threshold 2 (max 31) [PSYoungGen: 8959K->631K(8960K)] 10158K->3053K(19904K), 0.0029015 secs] [Times: user=0.01 sys=0.02, real=0.03 secs]')
+        assertThat(events.size(), equalTo(1))
+        GCEvent event = events.hashMapOnMillis[4432L]
+        assertThat(event, not(nullValue(GCEvent.class)))
+
+        assertThat(event.survivorDetails.newThreshold, equalTo(2))
+        assertThat(event.survivorDetails.maxThreshold, equalTo(31))
+        assertThat(event.survivorDetails.desiredSize, equalTo(655360L))
+        assertThat(event.survivorDetails.endingTotalSize, Matchers.<Long>nullValue())
+    }
+
+    @Test
+    void parseSimpleGcWithSingleAgeSurvivorSize() {
+        // original text:
+        // 2012-02-15T11:44:56.162+0100: 0.428: [GC
+        // Desired survivor size 655360 bytes, new threshold 7 (max 15)
+        // - age   1:   16690480 bytes,   16690480 total
+        // [PSYoungGen: 8959K->631K(8960K)] 10158K->3053K(19904K), 0.0029015 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+        GCEvents events = new GCLogParser().parse('2013-13-25T11:44:56.162+0100: 4.432: [Full GCDesired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   16690480 bytes,   16690480 total [PSYoungGen: 8959K->631K(8960K)] 10158K->3053K(19904K), 0.0029015 secs] [Times: user=0.01 sys=0.02, real=0.03 secs]')
+        assertThat(events.size(), equalTo(1))
+        GCEvent event = events.hashMapOnMillis[4432L]
+        assertThat(event, not(nullValue(GCEvent.class)))
+
+        assertThat(event.survivorDetails.newThreshold, equalTo(7))
+        assertThat(event.survivorDetails.maxThreshold, equalTo(15))
+        assertThat(event.survivorDetails.desiredSize, equalTo(655360L))
+        assertThat(event.survivorDetails.endingTotalSize, equalTo(16690480L))
+    }
+
+    @Test
+    void parseSimpleGcWithDoubleAgeSurvivorSize() {
+        GCEvents events = new GCLogParser().parse('''2012-02-16T08:51:03.093+0100: 0.164: [GC
+Desired survivor size 655360 bytes, new threshold 5 (max 10)
+- age   1:   16690480 bytes,   16690480 total
+- age   2:   16690480 bytes,   10000000 total
+ [PSYoungGen: 4160K->631K(4800K)] 4160K->1108K(15744K), 0.0020732 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+''')
+        assertThat(events.size(), equalTo(1))
+        GCEvent event = events.hashMapOnMillis[164L]
+        assertThat(event, not(nullValue(GCEvent.class)))
+
+        assertThat(event.survivorDetails.newThreshold, equalTo(5))
+        assertThat(event.survivorDetails.maxThreshold, equalTo(10))
+        assertThat(event.survivorDetails.desiredSize, equalTo(655360L))
+        assertThat(event.survivorDetails.endingTotalSize, equalTo(10000000L))
+    }
+
+    @Test
     void parseFullGc() {
         GCEvents events = new GCLogParser().parse('2012-01-24T07:43:16.086+0000: 135063.611: [Full GC (System) [PSYoungGen: 1105K->0K(44544K)] [ParOldGen: 17108K->17319K(27776K)] 18213K->17319K(72320K) [PSPermGen: 40705K->40646K(41088K)], 0.2675810 secs] [Times: user=0.31 sys=0.01, real=0.27 secs] ')
         assertThat(events.size(), equalTo(1))
@@ -84,6 +140,7 @@ class GCLogParserTest {
 
         assertThat(event.gcEventName, equalTo('Full GC (System)'))
         assertThat(event.isFullGarbageCollection(), equalTo(true))
+        assertThat(event.isExplicitFullGarbageCollection(), equalTo(true))
 
         assertThat(event.stats.size(), equalTo(4))
         assertThat(event.stats[null].startValueInB, equalTo(18213L*1024))

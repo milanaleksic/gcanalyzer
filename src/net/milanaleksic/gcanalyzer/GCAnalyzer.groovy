@@ -6,18 +6,25 @@ import javax.swing.event.TreeSelectionEvent
 import javax.swing.event.TreeSelectionListener
 import javax.swing.tree.DefaultMutableTreeNode
 import net.milanaleksic.gcanalyzer.graphing.GCEventCategory
-import net.milanaleksic.gcanalyzer.graphing.GCEventsInformation
+
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import java.awt.*
 import javax.swing.*
+
+import net.milanaleksic.gcanalyzer.graphing.ChartGenerator
+
+import org.jfree.data.time.TimeSeriesCollection
+import org.jfree.data.time.TimeSeries
+
+import net.milanaleksic.gcanalyzer.filedrop.FileDrop
 
 class GCAnalyzer {
 
     private Container fileAnalysisContainer
     private JTextField fileNameTextField
 
-    private FileParsingFinishedListener fileParsingFinishedListener
+    private ParsingFinishedListener parsingFinishedListener
 
     public static def setUpNimbusLookAndFeel() {
         try {
@@ -39,12 +46,23 @@ class GCAnalyzer {
 
         container.add(fileAnalysisContainer)
         container.add(getFooterVersionLabel(), BorderLayout.SOUTH)
+
+        setupDragAndDropListener()
     }
 
     def initGuiForApplet(Container container) {
         container.setLayout(new BorderLayout())
         fileAnalysisContainer = container
         container.add(getFooterVersionLabel(), BorderLayout.SOUTH)
+    }
+
+    def setupDragAndDropListener() {
+
+        new FileDrop(fileAnalysisContainer, { java.io.File[] files ->
+            for (int i = 0; i < files.length; i++) {
+                addFile(files[i].absolutePath)
+            }
+        } as FileDrop.Listener)
     }
 
     private JPanel getHeaderPanel() {
@@ -76,14 +94,14 @@ class GCAnalyzer {
     }
 
     void addFile(String filename) {
-        createGuiForEvents(new GCEventsInformation(filename))
+        createGuiForEvents(new ChartGenerator(filename))
     }
 
     void addUrl(URL url) {
-        createGuiForEvents(new GCEventsInformation(url))
+        createGuiForEvents(new ChartGenerator(url))
     }
 
-    private def createGuiForEvents(GCEventsInformation gcEventsInformation) {
+    private def createGuiForEvents(ChartGenerator gcEventsInformation) {
         JSplitPane fileAnalysisPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
         JPanel graphPanels = new JPanel(new CardLayout())
         graphPanels.add(new JPanel(), "")
@@ -127,16 +145,29 @@ class GCAnalyzer {
     }
 
     private def fireFileParsingFinishedEvent(String fileName) {
-        if (fileParsingFinishedListener)
-            fileParsingFinishedListener.onFileParsingFinished(fileName)
+        if (parsingFinishedListener)
+            parsingFinishedListener.onFileParsingFinished(fileName)
     }
 
     def addGraph(DefaultMutableTreeNode root, JPanel graphPanels, ChartPanel chartPanel) {
         if (!chartPanel.chart)
             return
-        ChartPanelNodeWrapper wrapper = new ChartPanelNodeWrapper(chartPanel: chartPanel)
-        graphPanels.add(chartPanel, wrapper.toString())
+        ChartPanelNodeWrapper wrapper = isEmptyChart(chartPanel.chart) ?
+            new DummyChartPanelNodeWrapper(chartPanel: chartPanel) :
+            new ChartPanelNodeWrapper(chartPanel: chartPanel)
+
+        graphPanels.add(wrapper.getUIComponent(), wrapper.toString())
         DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(wrapper)
         root.add(newNode)
+    }
+
+    boolean isEmptyChart(JFreeChart chart) {
+        TimeSeriesCollection dataSet = (TimeSeriesCollection) chart.getXYPlot().getDataset()
+        for (TimeSeries series : dataSet.series) {
+            if (!series.isEmpty())
+                return false
+        }
+        println "Chart ${chart.title.text} is empty!"
+        return true
     }
 }

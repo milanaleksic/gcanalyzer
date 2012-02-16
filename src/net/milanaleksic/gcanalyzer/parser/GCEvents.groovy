@@ -12,6 +12,8 @@ final class GCEvents {
 
     def HashMap<Long, GCEvent> hashMapOnMillis
 
+    def long totalParsingTime
+
     public int size() {
         return hashMapOnDate.size()
     }

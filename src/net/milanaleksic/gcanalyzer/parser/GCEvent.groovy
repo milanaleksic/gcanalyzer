@@ -30,4 +30,8 @@ final class GCEvent {
         return gcEventName?.contains('Full')
     }
 
+    public boolean isExplicitFullGarbageCollection() {
+        return isFullGarbageCollection() && gcEventName?.contains('(System)')
+    }
+
 }

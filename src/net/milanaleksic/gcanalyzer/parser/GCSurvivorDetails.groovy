@@ -1,6 +1,8 @@
 package net.milanaleksic.gcanalyzer.parser
 
 import groovy.transform.Immutable
+import javax.annotation.Nullable
+import javax.annotation.Nonnull
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,12 +14,16 @@ import groovy.transform.Immutable
 @Immutable
 class GCSurvivorDetails {
 
-    long desiredSize
-
-    long endingTotalSize
-
+    @Nonnull
     int newThreshold
 
+    @Nonnull
     int maxThreshold
+
+    @Nonnull
+    Long desiredSize
+
+    @Nullable
+    Long endingTotalSize
 
 }

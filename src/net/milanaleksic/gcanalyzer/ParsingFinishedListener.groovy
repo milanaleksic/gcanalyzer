@@ -1,6 +1,6 @@
 package net.milanaleksic.gcanalyzer
 
-interface FileParsingFinishedListener {
+interface ParsingFinishedListener {
 
     public void onFileParsingFinished(String fileName)
 

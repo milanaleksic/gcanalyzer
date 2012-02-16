@@ -95,13 +95,38 @@ class GCLogParser {
     }
 
     GCEvents parse(String text) {
+        long begin = System.currentTimeMillis()
         HashMap<Date, GCEvent> hashMapOnDate = new LinkedHashMap<Date, GCEvent>()
         HashMap<Long, GCEvent> hashMapOnMillis = new LinkedHashMap<Long, GCEvent>()
-        text.eachLine { line ->
-            processLine(line, hashMapOnDate, hashMapOnMillis)
+
+        StringBuilder lineBuilder = new StringBuilder()
+        StringReader reader = new StringReader(text)
+        String line
+        while (line = reader.readLine()) {
+            boolean isProperEnding = lineIsProperEndingOfGCRecord(line)
+            if (isProperEnding && lineBuilder.size()>0) {
+                processLine(lineBuilder.append(line).toString(), hashMapOnDate, hashMapOnMillis)
+                lineBuilder = new StringBuilder()
+            } else if (isProperEnding) {
+                processLine(line, hashMapOnDate, hashMapOnMillis)
+            }
+            else {
+                if (line == 'Heap') {
+                    break; // we don't want to analyze footer of the GC log if one exists.
+                }
+                lineBuilder.append(line)
+            }
         }
+
         //TODO: use unmodifiable maps
-        return new GCEvents(hashMapOnDate: hashMapOnDate, hashMapOnMillis: hashMapOnMillis)
+        return new GCEvents(
+                hashMapOnDate: hashMapOnDate,
+                hashMapOnMillis: hashMapOnMillis,
+                totalParsingTime: System.currentTimeMillis()-begin)
+    }
+
+    private boolean lineIsProperEndingOfGCRecord(String line) {
+        return line.endsWith(']') || line.endsWith('] ')
     }
 
     private static final int GROUP_MAIN_DATE_YEAR = 1
@@ -126,7 +151,7 @@ class GCLogParser {
     private static final int GROUP_MAIN_TIMING_TOTAL = 32
     private static final int GROUP_MAIN_TIMING_SUBGROUP = 33
 
-    void processLine(String line, HashMap<Date, GCEvent> hashMapOnDate, HashMap<Long, GCEvent> hashMapOnMillis) {
+    private void processLine(String line, HashMap<Date, GCEvent> hashMapOnDate, HashMap<Long, GCEvent> hashMapOnMillis) {
         def matcher = (line =~ completeLineRegEx)
         if (matcher.find()) {
             def calendar = Calendar.getInstance()
@@ -145,11 +170,12 @@ class GCLogParser {
 
             def survivorDetails = null
             if (matcher.group(GROUP_MAIN_SURVIVOR_SUBGROUP)) {
+                String totalSurvivorSize = matcher.group(GROUP_MAIN_SURVIVOR_TOTAL)
                 survivorDetails = new GCSurvivorDetails(
                     desiredSize: Long.parseLong(matcher.group(GROUP_MAIN_SURVIVOR_DESIRED_SIZE)),
                     newThreshold: Integer.parseInt(matcher.group(GROUP_MAIN_SURVIVOR_THRESHOLD_NEW)),
                     maxThreshold: Integer.parseInt(matcher.group(GROUP_MAIN_SURVIVOR_THRESHOLD_MAX)),
-                    endingTotalSize: Long.parseLong(matcher.group(GROUP_MAIN_SURVIVOR_TOTAL)))
+                    endingTotalSize: totalSurvivorSize ? Long.parseLong(totalSurvivorSize) : null)
             }
 
             def userTiming = null, sysTiming = null, realTiming = null

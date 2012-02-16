@@ -12,11 +12,11 @@ import javax.swing.*
  * Date: 1/29/12
  * Time: 11:09 AM
  */
-class GCAnalyzerApplication implements FileParsingFinishedListener {
+class GCAnalyzerApplication implements ParsingFinishedListener {
 
     public static final int STACK_TRACE_MAX_LENGTH = 1536
 
-    private static final String TITLE = 'Garbage Collector Log analysis'
+    private static final String TITLE = 'GC Analyzer - created by Milan Aleksic (www.milanaleksic.net)'
 
     private AtomicInteger counter = new AtomicInteger(0)
 
@@ -32,6 +32,7 @@ class GCAnalyzerApplication implements FileParsingFinishedListener {
             if (stackTrace && stackTrace.size() > STACK_TRACE_MAX_LENGTH)
                 stackTrace = stackTrace.substring(0, STACK_TRACE_MAX_LENGTH) + "..."
             JOptionPane.showMessageDialog(null, "Exception occurred: ${e.getMessage()}\r\n\r\nDetails:\r\n${stackTrace}")
+            e.printStackTrace()
         } as UncaughtExceptionHandler)
 
         GCAnalyzer.setUpNimbusLookAndFeel()
@@ -40,7 +41,7 @@ class GCAnalyzerApplication implements FileParsingFinishedListener {
         SwingUtilities.invokeAndWait {
             frame = new JFrame(TITLE)
 
-            analyzer = new GCAnalyzer(fileParsingFinishedListener: this)
+            analyzer = new GCAnalyzer(parsingFinishedListener: this)
             analyzer.initGuiForApplication(frame)
 
             frame.setPreferredSize(new Dimension(750, 550))
