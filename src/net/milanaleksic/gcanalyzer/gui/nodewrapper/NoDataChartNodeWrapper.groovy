@@ -1,13 +1,20 @@
-package net.milanaleksic.gcanalyzer
+package net.milanaleksic.gcanalyzer.gui.nodewrapper
 
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
+import org.jfree.chart.ChartPanel
 import javax.swing.*
 
-class DummyChartPanelNodeWrapper extends ChartPanelNodeWrapper {
+class NoDataChartNodeWrapper extends ChartNodeWrapper {
 
-    @Override
-    JComponent getUIComponent() {
+    private JComponent uiComponent
+
+    public NoDataChartNodeWrapper(ChartPanel chartPanel) {
+        super (chartPanel)
+        uiComponent = createNoDataComponent()
+    }
+
+    private JComponent createNoDataComponent() {
         JPanel panel = new JPanel(new GridBagLayout())
         def constraints = new GridBagConstraints()
         JLabel label = new JLabel('''<html><body><h3 align="center">No data available for this chart</h3>
@@ -18,6 +25,11 @@ recognizable by GCAnalyzer application</p>
         constraints.fill = GridBagConstraints.HORIZONTAL
         panel.add(label, constraints)
         return panel
+    }
+
+    @Override
+    JComponent getUIComponent() {
+        return uiComponent
     }
 
 }

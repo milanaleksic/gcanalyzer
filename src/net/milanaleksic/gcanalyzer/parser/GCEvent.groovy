@@ -8,9 +8,9 @@ package net.milanaleksic.gcanalyzer.parser
 @Immutable
 final class GCEvent {
 
-    def Date time
+    def Date moment
 
-    def long timeInMillis
+    def long momentInMillis
 
     def Map<String, SingleGCStatistic> stats
 

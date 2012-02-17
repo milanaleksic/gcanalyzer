@@ -20,8 +20,8 @@ class GCLogParserTest {
         assertThat(events.size(), equalTo(1))
         GCEvent event = events.hashMapOnMillis[135213292L]
         assertThat(event, not(nullValue(GCEvent.class)))
-        assertThat(events.hashMapOnDate[event.time], equalTo(event))
-        assertThat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS").format(event.time), equalTo("2012-01-24 07:45:12.765"))
+        assertThat(events.hashMapOnDate[event.moment], equalTo(event))
+        assertThat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS").format(event.moment), equalTo("2012-01-24 07:45:12.765"))
 
 
         assertThat(event.gcEventName, equalTo('GC'))
@@ -52,7 +52,7 @@ class GCLogParserTest {
         assertThat(events.size(), equalTo(1))
         GCEvent event = events.hashMapOnMillis[428L]
         assertThat(event, not(nullValue(GCEvent.class)))
-        assertThat(events.hashMapOnDate[event.time], equalTo(event))
+        assertThat(events.hashMapOnDate[event.moment], equalTo(event))
 
         assertThat(event.gcEventName, equalTo('Full GC'))
         assertThat(event.isFullGarbageCollection(), equalTo(true))
@@ -136,7 +136,7 @@ Desired survivor size 655360 bytes, new threshold 5 (max 10)
         assertThat(events.size(), equalTo(1))
         GCEvent event = events.hashMapOnMillis[135063611L]
         assertThat(event, not(nullValue(GCEvent.class)))
-        assertThat(events.hashMapOnDate[event.time], equalTo(event))
+        assertThat(events.hashMapOnDate[event.moment], equalTo(event))
 
         assertThat(event.gcEventName, equalTo('Full GC (System)'))
         assertThat(event.isFullGarbageCollection(), equalTo(true))

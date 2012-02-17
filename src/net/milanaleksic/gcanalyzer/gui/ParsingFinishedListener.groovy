@@ -1,4 +1,4 @@
-package net.milanaleksic.gcanalyzer
+package net.milanaleksic.gcanalyzer.gui
 
 interface ParsingFinishedListener {
 

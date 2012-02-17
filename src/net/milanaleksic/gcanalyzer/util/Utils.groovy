@@ -1,4 +1,4 @@
-package net.milanaleksic.gcanalyzer
+package net.milanaleksic.gcanalyzer.util
 
 /**
  * User: Milan Aleksic
@@ -36,7 +36,7 @@ class Utils {
     public static String getApplicationVersion() {
         InputStream stream
         try {
-            stream = Utils.class.getResourceAsStream("version.txt")
+            stream = Utils.class.getResourceAsStream("/net/milanaleksic/gcanalyzer/version.txt")
             if (stream == null)
                 throw new IOException("Resource not found: version.txt")
             return stream.text

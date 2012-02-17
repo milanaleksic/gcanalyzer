@@ -5,7 +5,9 @@ import java.awt.Dimension
 import java.awt.Point
 import java.lang.Thread.UncaughtExceptionHandler
 import java.util.concurrent.atomic.AtomicInteger
+import net.milanaleksic.gcanalyzer.util.Utils
 import javax.swing.*
+import net.milanaleksic.gcanalyzer.gui.*
 
 /**
  * User: Milan Aleksic
@@ -14,7 +16,7 @@ import javax.swing.*
  */
 class GCAnalyzerApplication implements ParsingFinishedListener {
 
-    public static final int STACK_TRACE_MAX_LENGTH = 1536
+    public static final int STACK_TRACE_MAX_LENGTH = 2048
 
     private static final String TITLE = 'GC Analyzer - created by Milan Aleksic (www.milanaleksic.net)'
 
@@ -35,14 +37,13 @@ class GCAnalyzerApplication implements ParsingFinishedListener {
             e.printStackTrace()
         } as UncaughtExceptionHandler)
 
-        GCAnalyzer.setUpNimbusLookAndFeel()
+        AbstractGCAnalyzerController.setUpNimbusLookAndFeel()
 
-        GCAnalyzer analyzer = null
+        AbstractGCAnalyzerController controller = null
         SwingUtilities.invokeAndWait {
             frame = new JFrame(TITLE)
 
-            analyzer = new GCAnalyzer(parsingFinishedListener: this)
-            analyzer.initGuiForApplication(frame)
+            controller = new ApplicationGCAnalyzerController(frame, this)
 
             frame.setPreferredSize(new Dimension(750, 550))
             frame.setLocation(new Point(100, 100))
@@ -51,8 +52,8 @@ class GCAnalyzerApplication implements ParsingFinishedListener {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
             frame.setVisible(true)
         }
-        if (analyzer)
-            startRequestedFilesParsing(args, analyzer)
+        if (controller)
+            startRequestedFilesParsing(args, controller)
     }
 
     public void startRequestedFilesParsing(args, analyzer) {

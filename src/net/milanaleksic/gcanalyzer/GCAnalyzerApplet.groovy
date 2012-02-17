@@ -5,10 +5,14 @@ import javax.swing.JLabel
 import javax.swing.SwingUtilities
 import javax.swing.JApplet
 import javax.swing.JPanel
+import net.milanaleksic.gcanalyzer.gui.ParsingFinishedListener
+
+import net.milanaleksic.gcanalyzer.gui.AbstractGCAnalyzerController
+import net.milanaleksic.gcanalyzer.gui.AppletGCAnalyzerController
 
 class GCAnalyzerApplet extends JApplet implements ParsingFinishedListener {
 
-    private GCAnalyzer analyzer
+    private AbstractGCAnalyzerController controller
 
     @Override
     void init() {
@@ -16,8 +20,7 @@ class GCAnalyzerApplet extends JApplet implements ParsingFinishedListener {
             SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
                     JPanel panel = createContentPane()
-                    analyzer = new GCAnalyzer(parsingFinishedListener:GCAnalyzerApplet.this)
-                    analyzer.initGuiForApplet(panel)
+                    controller = new AppletGCAnalyzerController(panel, GCAnalyzerApplet.this)
                 }
             })
             loadLog(getLogLocation())
@@ -53,7 +56,7 @@ class GCAnalyzerApplet extends JApplet implements ParsingFinishedListener {
 
     private def loadLog(URL logUrl) {
         showMessage("Loading GC log from $logUrl")
-        analyzer.addUrl(logUrl)
+        controller.addUrl(logUrl)
     }
 
     private def showVeryBigErrorMessage(String message) {

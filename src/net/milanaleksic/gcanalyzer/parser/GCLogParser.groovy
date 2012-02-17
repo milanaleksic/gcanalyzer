@@ -1,7 +1,7 @@
 package net.milanaleksic.gcanalyzer.parser
 
 import java.util.regex.Pattern
-import net.milanaleksic.gcanalyzer.Utils
+import net.milanaleksic.gcanalyzer.util.Utils
 
 /**
  * User: Milan Aleksic
@@ -95,7 +95,6 @@ class GCLogParser {
     }
 
     GCEvents parse(String text) {
-        long begin = System.currentTimeMillis()
         HashMap<Date, GCEvent> hashMapOnDate = new LinkedHashMap<Date, GCEvent>()
         HashMap<Long, GCEvent> hashMapOnMillis = new LinkedHashMap<Long, GCEvent>()
 
@@ -121,8 +120,7 @@ class GCLogParser {
         //TODO: use unmodifiable maps
         return new GCEvents(
                 hashMapOnDate: hashMapOnDate,
-                hashMapOnMillis: hashMapOnMillis,
-                totalParsingTime: System.currentTimeMillis()-begin)
+                hashMapOnMillis: hashMapOnMillis)
     }
 
     private boolean lineIsProperEndingOfGCRecord(String line) {
@@ -191,7 +189,7 @@ class GCLogParser {
 
             long completeEventTimeInMicroSeconds = new BigDecimal(matcher.group(GROUP_MAIN_TIMING_TOTAL)) * 1000 * 1000
 
-            def event = new GCEvent(time: time, timeInMillis: timeMs,
+            def event = new GCEvent(moment: time, momentInMillis: timeMs,
                     gcEventName: gcEventName, stats: Collections.unmodifiableMap(stats),
                     survivorDetails: survivorDetails,
                     userTiming: userTiming, sysTiming: sysTiming, realTiming: realTiming,
