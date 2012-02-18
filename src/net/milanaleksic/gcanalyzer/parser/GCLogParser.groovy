@@ -97,6 +97,7 @@ class GCLogParser {
     GCEvents parse(String text) {
         HashMap<Date, GCEvent> hashMapOnDate = new LinkedHashMap<Date, GCEvent>()
         HashMap<Long, GCEvent> hashMapOnMillis = new LinkedHashMap<Long, GCEvent>()
+        LinkedList<GCEvent> linkedList = new LinkedList<GCEvent>()
 
         StringBuilder lineBuilder = new StringBuilder()
         StringReader reader = new StringReader(text)
@@ -104,10 +105,10 @@ class GCLogParser {
         while (line = reader.readLine()) {
             boolean isProperEnding = lineIsProperEndingOfGCRecord(line)
             if (isProperEnding && lineBuilder.size()>0) {
-                processLine(lineBuilder.append(line).toString(), hashMapOnDate, hashMapOnMillis)
+                processLine(lineBuilder.append(line).toString(), hashMapOnDate, hashMapOnMillis, linkedList)
                 lineBuilder = new StringBuilder()
             } else if (isProperEnding) {
-                processLine(line, hashMapOnDate, hashMapOnMillis)
+                processLine(line, hashMapOnDate, hashMapOnMillis, linkedList)
             }
             else {
                 if (line == 'Heap') {
@@ -119,6 +120,7 @@ class GCLogParser {
 
         //TODO: use unmodifiable maps
         return new GCEvents(
+                linkedList: linkedList,
                 hashMapOnDate: hashMapOnDate,
                 hashMapOnMillis: hashMapOnMillis)
     }
@@ -149,7 +151,8 @@ class GCLogParser {
     private static final int GROUP_MAIN_TIMING_TOTAL = 32
     private static final int GROUP_MAIN_TIMING_SUBGROUP = 33
 
-    private void processLine(String line, HashMap<Date, GCEvent> hashMapOnDate, HashMap<Long, GCEvent> hashMapOnMillis) {
+    private void processLine(String line, HashMap<Date, GCEvent> hashMapOnDate, HashMap<Long, GCEvent> hashMapOnMillis,
+                             LinkedList<GCEvent> linkedList) {
         def matcher = (line =~ completeLineRegEx)
         if (matcher.find()) {
             def calendar = Calendar.getInstance()
@@ -197,6 +200,7 @@ class GCLogParser {
             )
 
             hashMapOnDate[time] = hashMapOnMillis[timeMs] = event
+            linkedList.add(event)
 
         } else {
             throw new IllegalArgumentException("Not matched garbage collection log line: $line")

@@ -12,6 +12,8 @@ final class GCEvents {
 
     def HashMap<Long, GCEvent> hashMapOnMillis
 
+    def LinkedList<GCEvent> linkedList
+
     public int size() {
         return hashMapOnDate.size()
     }

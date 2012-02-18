@@ -443,7 +443,7 @@ class GCLogInformationSource {
     public int numberOfDetectedYoungGCEvents() {
         calculateOrUseCachedStatistics('numberOfDetectedYoungGCEvents') {
             int ofTheJedi = 0
-            events.hashMapOnMillis.values().each { GCEvent event ->
+            events.linkedList.each { GCEvent event ->
                 if (!event.fullGarbageCollection)
                     ofTheJedi++
             }
@@ -454,7 +454,7 @@ class GCLogInformationSource {
     public int numberOfDetectedFullGCEvents() {
         calculateOrUseCachedStatistics('numberOfDetectedFullGCEvents') {
             double ofTheJedi = 0
-            events.hashMapOnMillis.values().each { GCEvent event ->
+            events.linkedList.each { GCEvent event ->
                 if (event.fullGarbageCollection)
                     ofTheJedi++
             }
@@ -462,10 +462,10 @@ class GCLogInformationSource {
         }
     }
 
-    private double sumYoungGCEventLength() {
-        calculateOrUseCachedStatistics('sumYoungGCEventLength') {
+    private double sumYoungGCEventLengthMicroSeconds() {
+        calculateOrUseCachedStatistics('sumYoungGCEventLengthMicroSeconds') {
             double sum = 0
-            events.hashMapOnMillis.values().each { GCEvent event ->
+            events.linkedList.each { GCEvent event ->
                 if (!event.fullGarbageCollection) {
                     sum += event.completeEventTimeInMicroSeconds
                 }
@@ -474,8 +474,8 @@ class GCLogInformationSource {
         }
     }
 
-    private double sumFullGCEventLength() {
-        calculateOrUseCachedStatistics('sumFullGCEventLength') {
+    private double sumFullGCEventLengthMicroSeconds() {
+        calculateOrUseCachedStatistics('sumFullGCEventLengthMicroSeconds') {
             long sum = 0
             events.hashMapOnMillis.values().each { GCEvent event ->
                 if (event.fullGarbageCollection) {
@@ -488,21 +488,21 @@ class GCLogInformationSource {
 
     public double averageYoungGCEventLength() {
         calculateOrUseCachedStatistics('averageYoungGCEventLength') {
-            sumYoungGCEventLength() / numberOfDetectedYoungGCEvents() / 1000
+            sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents() / 1000
         }
     }
 
     public double averageFullGCEventLength() {
         calculateOrUseCachedStatistics('averageFullGCEventLength') {
-            sumFullGCEventLength() / numberOfDetectedFullGCEvents() / 1000
+            sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents() / 1000
         }
     }
 
     public double standardDeviationYoungGCEventLength() {
         calculateOrUseCachedStatistics('standardDeviationYoungGCEventLength') {
             double sum = 0
-            double averageMicrosecondsForYoungGC = sumYoungGCEventLength() / numberOfDetectedYoungGCEvents()
-            events.hashMapOnMillis.values().each { GCEvent event ->
+            double averageMicrosecondsForYoungGC = sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents()
+            events.linkedList.each { GCEvent event ->
                 if (!event.fullGarbageCollection) {
                     sum += Math.pow(event.completeEventTimeInMicroSeconds - averageMicrosecondsForYoungGC, 2)
                 }
@@ -514,8 +514,8 @@ class GCLogInformationSource {
     public double standardDeviationFullGCEventLength() {
         calculateOrUseCachedStatistics('standardDeviationFullGCEventLength') {
             double sum = 0
-            double averageMicrosecondsForFullGC = sumFullGCEventLength() / numberOfDetectedFullGCEvents()
-            events.hashMapOnMillis.values().each { GCEvent event ->
+            double averageMicrosecondsForFullGC = sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents()
+            events.linkedList.each { GCEvent event ->
                 if (event.fullGarbageCollection) {
                     sum += Math.pow(event.completeEventTimeInMicroSeconds - averageMicrosecondsForFullGC, 2)
                 }
@@ -524,16 +524,39 @@ class GCLogInformationSource {
         }
     }
 
-    public double totalTimeSpentOnGCInPercent() {
-        calculateOrUseCachedStatistics('totalTimeSpentOnGCInPercent') {
-            double totallength = sumYoungGCEventLength() + sumFullGCEventLength()
-            double averageMicrosecondsForYoungGC = sumYoungGCEventLength() / numberOfDetectedYoungGCEvents()
-            events.hashMapOnMillis.values().each { GCEvent event ->
-                if (!event.fullGarbageCollection) {
-                    sum += Math.pow(event.completeEventTimeInMicroSeconds - averageMicrosecondsForYoungGC, 2)
-                }
-            }
-            return Math.sqrt((double) sum / (numberOfDetectedYoungGCEvents() - 1)) / 1000
+    public double totalTimeSpentOnYoungGCInPercent() {
+        calculateOrUseCachedStatistics('totalTimeSpentOnYoungGCInPercent') {
+            if (events.size() < 2)
+                return 0
+            double gcTime = sumYoungGCEventLengthMicroSeconds() / 1000
+            double totalTime = events.linkedList.last().momentInMillis - events.linkedList.first().momentInMillis
+            return (double) 100 * gcTime / totalTime
         }
+    }
+
+    public double totalTimeSpentOnFullGCInPercent() {
+        calculateOrUseCachedStatistics('totalTimeSpentOnFullGCInPercent') {
+            if (events.size() < 2)
+                return 0
+            double gcTime = sumFullGCEventLengthMicroSeconds() / 1000
+            double totalTime = events.linkedList.last().momentInMillis - events.linkedList.first().momentInMillis
+            return (double) 100 * gcTime / totalTime
+        }
+    }
+
+    public double totalTimeSpentOnGCInPercent() {
+        totalTimeSpentOnYoungGCInPercent() + totalTimeSpentOnFullGCInPercent()
+    }
+
+    public long totalTimeSpentOnYoungGC() {
+        sumYoungGCEventLengthMicroSeconds() / 1000
+    }
+
+    public long totalTimeSpentOnFullGC() {
+        sumFullGCEventLengthMicroSeconds() / 1000
+    }
+
+    public long totalTimeSpentOnGC() {
+        totalTimeSpentOnYoungGC() + totalTimeSpentOnFullGC()
     }
 }

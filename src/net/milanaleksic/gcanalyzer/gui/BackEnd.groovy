@@ -98,13 +98,20 @@ class BackEnd {
                     ['Parsing time', { "${gcLogInformationSource.parsingTime} ms" }],
                     ['Chart calculation and creation time', { "$chartCreationInterval ms" }],
                     ['',''],
+                    ['Total time spent on garbage collection', { String.format('%d ms (%6.4f%%)',
+                            gcLogInformationSource.totalTimeSpentOnGC(), gcLogInformationSource.totalTimeSpentOnGCInPercent()) }],
+                    ['',''],
                     ['Detected Young GC events', { gcLogInformationSource.numberOfDetectedYoungGCEvents() }],
                     ['Average length of Young GC events', { "${NumberFormat.getNumberInstance().format(gcLogInformationSource.averageYoungGCEventLength())} ms" }],
                     ['Standard deviation of Young GC events', { "${NumberFormat.getNumberInstance().format(gcLogInformationSource.standardDeviationYoungGCEventLength())} ms" }],
+                    ['Total time spent on Young garbage collection', { String.format('%d ms (%6.4f%%)',
+                            gcLogInformationSource.totalTimeSpentOnYoungGC(), gcLogInformationSource.totalTimeSpentOnYoungGCInPercent()) }],
                     ['',''],
                     ['Detected Full GC events', { gcLogInformationSource.numberOfDetectedFullGCEvents() }],
                     ['Average length of Full GC events', { "${NumberFormat.getNumberInstance().format(gcLogInformationSource.averageFullGCEventLength())} ms" }],
                     ['Standard deviation of Full GC events', { "${NumberFormat.getNumberInstance().format(gcLogInformationSource.standardDeviationFullGCEventLength())} ms" }],
+                    ['Total time spent on Full garbage collection', { String.format('%d ms (%6.4f%%)',
+                            gcLogInformationSource.totalTimeSpentOnFullGC(), gcLogInformationSource.totalTimeSpentOnFullGCInPercent()) }],
                     ['','']
             ] as Object[][]
 
