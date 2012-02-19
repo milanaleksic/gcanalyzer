@@ -9,6 +9,7 @@ import org.jfree.chart.axis.DateAxis
 import org.jfree.chart.plot.XYPlot
 import net.milanaleksic.gcanalyzer.parser.*
 import org.jfree.data.time.*
+import net.milanaleksic.gcanalyzer.util.Cacheable
 
 /**
  * User: Milan Aleksic
@@ -108,6 +109,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getOldGenerationCompleteChart() {
         getTimeChartBasedOnIndependentEvents('Old generation memory occupancy', 'Memory (KB)', [
                 'Start memory occupancy': { GCEvent event ->
@@ -128,6 +130,7 @@ class GCLogInformationSource {
         ] as Map<String, Closure>)
     }
 
+    @Cacheable
     private JFreeChart getPermanentGenerationCompleteChart() {
         getTimeChartBasedOnIndependentEvents('Permanent generation memory occupancy', 'Memory (KB)', [
                 'Start memory occupancy': { GCEvent event ->
@@ -148,6 +151,7 @@ class GCLogInformationSource {
         ] as Map<String, Closure>)
     }
 
+    @Cacheable
     private JFreeChart getYoungGenerationCompleteChart() {
         getTimeChartBasedOnIndependentEvents('Young generation memory occupancy', 'Memory (KB)', [
                 'Start memory occupancy': { GCEvent event ->
@@ -162,6 +166,7 @@ class GCLogInformationSource {
         ] as Map<String, Closure>)
     }
 
+    @Cacheable
     private JFreeChart getSurvivorPoolNewAndMaxThresholdChart() {
         getTimeChartBasedOnIndependentEvents('New and Max threshold', 'Threshold size', [
                 'New Threshold': { GCEvent event ->
@@ -175,7 +180,7 @@ class GCLogInformationSource {
         ] as Map<String, Closure>)
     }
 
-
+    @Cacheable
     private JFreeChart getSurvivorSizeChart() {
         getTimeChartBasedOnIndependentEvents('Survivor pool size', 'Memory (KB)', [
                 'Desired size': { GCEvent event ->
@@ -189,6 +194,7 @@ class GCLogInformationSource {
         ] as Map<String, Closure>)
     }
 
+    @Cacheable
     private JFreeChart getOldGenerationIncreaseChart() {
         getTimeChartBasedOnTwoConsecutiveEvents('Old generation increase per event', 'Memory (KB)') {
             GCEvent previousEvent, GCEvent event ->
@@ -198,6 +204,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getOldGenerationMemoryOccupancyChart() {
         getTimeChartBasedOnIndependentEvents('Old generation memory occupancy in %', '%') {
             GCEvent event ->
@@ -207,6 +214,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getPermGenerationMemoryOccupancyChart() {
         getTimeChartBasedOnIndependentEvents('Permanent generation memory occupancy in %', '%') {
             GCEvent event ->
@@ -216,6 +224,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getLiveSizeChart() {
         getTimeChartBasedOnIndependentEvents('Memory live size (Old gen memory occupancy after Full GCs)', 'Memory (KB)') {
             GCEvent event ->
@@ -225,6 +234,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getPermGenSizeChart() {
         getTimeChartBasedOnIndependentEvents('Permanent generation size after Full GC', 'Memory (KB)') {
             GCEvent event ->
@@ -234,6 +244,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getEventTimingsChart() {
         getTimeChartBasedOnIndependentEvents('Complete event time', 'Milliseconds (ms)') {
             GCEvent event ->
@@ -241,6 +252,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getYoungGCEventTimingsChart() {
         getTimeChartBasedOnIndependentEvents('Only Young Generation GC event time', 'Milliseconds (ms)') {
             GCEvent event ->
@@ -248,6 +260,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getFullGCEventTimingsChart() {
         getTimeChartBasedOnIndependentEvents('Full Generation GC event time', 'Milliseconds (ms)') {
             GCEvent event ->
@@ -255,6 +268,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getHeapWithoutPermanentGenerationGCChart() {
         getTimeChartBasedOnIndependentEvents('Heap without Permanent generation', 'Memory (KB)') {
             GCEvent event ->
@@ -262,6 +276,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getTimeSpentOnAllGC() {
         getTimeChartBasedOnPerHour('Time spent on all GC', 'ms per hour') { GCEvent event, Number previousValue ->
             BigDecimal valueToAdd = event.completeEventTimeInMicroSeconds / 1000
@@ -269,6 +284,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getTimeSpentOnYoungGC() {
         getTimeChartBasedOnPerHour('Time spent on Young GC', 'ms per hour') { GCEvent event, Number previousValue ->
             if (event.fullGarbageCollection)
@@ -280,6 +296,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getTimeSpentOnFullGC() {
         getTimeChartBasedOnPerHour('Time spent on Full GC', 'ms per hour') { GCEvent event, Number previousValue ->
             if (event.fullGarbageCollection) {
@@ -291,12 +308,14 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getFrequencyPerHourOnAllGC() {
         getTimeChartBasedOnPerHour('Events per hour by all GCs', 'times per hour') { GCEvent event, Number previousValue ->
             previousValue ? previousValue + 1 : 1
         }
     }
 
+    @Cacheable
     private JFreeChart getFrequencyPerHourOnYoungGC() {
         getTimeChartBasedOnPerHour('Events per hour by Young GC', 'times per hour') { GCEvent event, Number previousValue ->
             if (event.fullGarbageCollection)
@@ -306,6 +325,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private JFreeChart getFrequencyPerHourOnFullGC() {
         getTimeChartBasedOnPerHour('Events per hour by Full GC', 'times per hour') { GCEvent event, Number previousValue ->
             if (event.fullGarbageCollection)
@@ -363,7 +383,12 @@ class GCLogInformationSource {
         }
     }
 
+    private Map<String, JFreeChart> cachedCharts = [:]
+
     private JFreeChart getTimeChart(String graphName, String yAxisName, Closure process) {
+        JFreeChart cachedChart = cachedCharts[graphName]
+        if (cachedChart)
+            return cachedChart
         TimeSeriesCollection dataSet = new TimeSeriesCollection()
 
         TimeSeries series = new TimeSeries(graphName, Millisecond.class)
@@ -381,6 +406,8 @@ class GCLogInformationSource {
         def axis = (DateAxis) plot.getDomainAxis()
         axis.setDateFormatOverride(new SimpleDateFormat("dd/MM HH:mm"))
         axis.setTickMarkPaint(Color.GRAY)
+
+        cachedCharts[graphName] = chart
         return chart
     }
 
@@ -440,6 +467,7 @@ class GCLogInformationSource {
         statisticValue
     }
 
+    @Cacheable
     public int numberOfDetectedYoungGCEvents() {
         calculateOrUseCachedStatistics('numberOfDetectedYoungGCEvents') {
             int ofTheJedi = 0
@@ -451,6 +479,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     public int numberOfDetectedFullGCEvents() {
         calculateOrUseCachedStatistics('numberOfDetectedFullGCEvents') {
             double ofTheJedi = 0
@@ -462,6 +491,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private double sumYoungGCEventLengthMicroSeconds() {
         calculateOrUseCachedStatistics('sumYoungGCEventLengthMicroSeconds') {
             double sum = 0
@@ -474,6 +504,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     private double sumFullGCEventLengthMicroSeconds() {
         calculateOrUseCachedStatistics('sumFullGCEventLengthMicroSeconds') {
             long sum = 0
@@ -487,17 +518,14 @@ class GCLogInformationSource {
     }
 
     public double averageYoungGCEventLength() {
-        calculateOrUseCachedStatistics('averageYoungGCEventLength') {
-            sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents() / 1000
-        }
+        sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents() / 100
     }
 
     public double averageFullGCEventLength() {
-        calculateOrUseCachedStatistics('averageFullGCEventLength') {
-            sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents() / 1000
-        }
+        sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents() / 1000
     }
 
+    @Cacheable
     public double standardDeviationYoungGCEventLength() {
         calculateOrUseCachedStatistics('standardDeviationYoungGCEventLength') {
             double sum = 0
@@ -511,6 +539,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     public double standardDeviationFullGCEventLength() {
         calculateOrUseCachedStatistics('standardDeviationFullGCEventLength') {
             double sum = 0
@@ -524,6 +553,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     public double totalTimeSpentOnYoungGCInPercent() {
         calculateOrUseCachedStatistics('totalTimeSpentOnYoungGCInPercent') {
             if (events.size() < 2)
@@ -534,6 +564,7 @@ class GCLogInformationSource {
         }
     }
 
+    @Cacheable
     public double totalTimeSpentOnFullGCInPercent() {
         calculateOrUseCachedStatistics('totalTimeSpentOnFullGCInPercent') {
             if (events.size() < 2)
@@ -559,4 +590,5 @@ class GCLogInformationSource {
     public long totalTimeSpentOnGC() {
         totalTimeSpentOnYoungGC() + totalTimeSpentOnFullGC()
     }
+
 }

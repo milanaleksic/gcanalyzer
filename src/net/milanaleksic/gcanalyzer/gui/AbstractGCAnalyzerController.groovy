@@ -9,6 +9,7 @@ import java.awt.*
 import javax.swing.*
 
 import net.milanaleksic.gcanalyzer.graphing.GCLogInformationSource
+import net.milanaleksic.gcanalyzer.graphing.GCLogInformationSourceFactory
 
 abstract class AbstractGCAnalyzerController {
 
@@ -70,11 +71,11 @@ abstract class AbstractGCAnalyzerController {
     }
 
     void addFile(String filename) {
-        createGuiForEvents(new GCLogInformationSource(filename))
+        createGuiForEvents(GCLogInformationSourceFactory.createGCLogInformationSource(filename))
     }
 
     void addUrl(URL url) {
-        createGuiForEvents(new GCLogInformationSource(url))
+        createGuiForEvents(GCLogInformationSourceFactory.createGCLogInformationSource(url))
     }
 
     private def createGuiForEvents(GCLogInformationSource chartGenerator) {

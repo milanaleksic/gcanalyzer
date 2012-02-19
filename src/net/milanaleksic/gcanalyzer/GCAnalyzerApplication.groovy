@@ -30,7 +30,7 @@ class GCAnalyzerApplication implements ParsingFinishedListener {
 
     private def exec(String[] args) {
         Thread.setDefaultUncaughtExceptionHandler({ Thread t, Throwable e ->
-            def stackTrace = Utils.getStackTrace(e)
+            def stackTrace = Utils.getSmallerStackTraceForThrowable(e)
             if (stackTrace && stackTrace.size() > STACK_TRACE_MAX_LENGTH)
                 stackTrace = stackTrace.substring(0, STACK_TRACE_MAX_LENGTH) + "..."
             JOptionPane.showMessageDialog(null, "Exception occurred: ${e.getMessage()}\r\n\r\nDetails:\r\n${stackTrace}")
