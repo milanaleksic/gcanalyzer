@@ -9,33 +9,27 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class GCLogInformationSourceTest {
 
     private GCEvents getDummyData() {
-        def event1 = new GCEvent(moment: new Date(), momentInMillis: 5,
-            gcEventName: 'GC', stats: null,
-            survivorDetails: null,
-            userTiming: 0, sysTiming: 1, realTiming: 2,
-            completeEventTimeInMicroSeconds: 5000
-        )
-        def event2 = new GCEvent(moment: new Date(), momentInMillis: 10,
-            gcEventName: 'GC', stats: null,
-            survivorDetails: null,
-            userTiming: 0, sysTiming: 1, realTiming: 2,
-            completeEventTimeInMicroSeconds: 3000
-        )
-        def event3 = new GCEvent(moment: new Date(), momentInMillis: 15,
-            gcEventName: 'Full GC', stats: null,
-            survivorDetails: null,
-            userTiming: 0, sysTiming: 1, realTiming: 2,
-            completeEventTimeInMicroSeconds: 1000
-        )
-        def mapOnMillis = [:]
-        mapOnMillis[event1.momentInMillis] = event1
-        mapOnMillis[event2.momentInMillis] = event2
-        mapOnMillis[event3.momentInMillis] = event3
-        def mapOnDate = [:]
-        mapOnDate[event1.moment] = event1
-        mapOnDate[event2.moment] = event2
-        mapOnDate[event3.moment] = event3
-        return new GCEvents(hashMapOnDate:mapOnDate, hashMapOnMillis: mapOnMillis)
+        LinkedList<GCEvent> events = new LinkedList<GCEvent>([
+            new GCEvent(moment: new Date(), momentInMillis: 5,
+                gcEventName: 'GC', stats: null,
+                survivorDetails: null,
+                userTiming: 0, sysTiming: 1, realTiming: 2,
+                completeEventTimeInMicroSeconds: 5000
+            ),
+            new GCEvent(moment: new Date(), momentInMillis: 10,
+                gcEventName: 'GC', stats: null,
+                survivorDetails: null,
+                userTiming: 0, sysTiming: 1, realTiming: 2,
+                completeEventTimeInMicroSeconds: 3000
+            ),
+            new GCEvent(moment: new Date(), momentInMillis: 15,
+                gcEventName: 'Full GC', stats: null,
+                survivorDetails: null,
+                userTiming: 0, sysTiming: 1, realTiming: 2,
+                completeEventTimeInMicroSeconds: 1000
+            )
+        ])
+        return new GCEvents(events)
     }
 
     @Test
