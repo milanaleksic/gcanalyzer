@@ -42,7 +42,7 @@ public class GCLogInformationSourceTest {
         assertThat(new BigDecimal(source.averageYoungGCEventLength()), equalTo(new BigDecimal(4.0)))
         assertThat(new BigDecimal(source.averageFullGCEventLength()), equalTo(new BigDecimal(1.0)))
 
-        assertThat(new BigDecimal(source.standardDeviationYoungGCEventLength()), equalTo(new BigDecimal(Math.sqrt(2))))
+        assertThat(new BigDecimal(source.standardDeviationYoungGCEventLength()), equalTo(new BigDecimal(Math.sqrt(2.0))))
         assertThat(Double.isNaN(source.standardDeviationFullGCEventLength()), equalTo(true))
     }
 
