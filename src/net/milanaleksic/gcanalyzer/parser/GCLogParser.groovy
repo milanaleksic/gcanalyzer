@@ -41,14 +41,13 @@ class GCLogParser {
         (\d{4})-(\d{2})-(\d{2})T         # 1, 2, 3 (GROUP_MAIN_DATE_YEAR, GROUP_MAIN_DATE_MONTH, GROUP_MAIN_DATE_DATE) - date parts
         (\d{2}):(\d{2}):(\d{2})\.(\d{3}) # 4, 5, 6, 7 (GROUP_MAIN_DATE_HOUR, GROUP_MAIN_DATE_MIN, GROUP_MAIN_DATE_SEC, GROUP_MAIN_DATE_MILLIS) - time parts
         \+\d{4}:\s
-        (\d+\.\d+):\s                    # 8 (GROUP_MAIN_TIME_SINCE_PROGRAM_START) - time in seconds from program start
-        \[
+        (\d+\.\d+):\s\[                  # 8 (GROUP_MAIN_TIME_SINCE_PROGRAM_START) - time in seconds from program start
 		(                                # 9 (GROUP_MAIN_EVENT_NAME) - Garbage collection event
 			([Ful\s]+)?                  # 10 - [helper group]
-			GC\s?
-			(\(System\))?                # 11 - [helper group]
-			(\d+\.\d+:\s?)?              # 12 - [helper group]
-		)
+			GC
+			(\s?\(System\))?             # 11 - [helper group]
+		)\s?
+		(\d+\.\d+:\s?)?                  # 12 - [helper group]
 		(                                # 13 (GROUP_MAIN_SURVIVOR_SUBGROUP) - [sub-group]
 			[^\d]+
 			(\d+)                        # 14 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
