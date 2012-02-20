@@ -5,26 +5,26 @@ package net.milanaleksic.gcanalyzer.parser
  * Date: 1/29/12
  * Time: 11:37 AM
  */
-@Immutable
+@groovy.transform.Immutable
 final class GCEvent {
 
     def Date moment
 
     def long momentInMillis
 
-    def Map<String, SingleGCStatistic> stats
+    def GCStatistics stats
 
     def String gcEventName
 
-    long userTiming
+    def long userTiming
 
-    long sysTiming
+    def long sysTiming
 
-    long realTiming
+    def long realTiming
 
-    long completeEventTimeInMicroSeconds
+    def long completeEventTimeInMicroSeconds
 
-    GCSurvivorDetails survivorDetails
+    def GCSurvivorDetails survivorDetails
 
     public boolean isFullGarbageCollection() {
         return gcEventName?.contains('Full')

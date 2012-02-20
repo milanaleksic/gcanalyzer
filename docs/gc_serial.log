@@ -1,0 +1,129 @@
+2012-02-20T14:16:02.914+0100: 0.144: [GC 0.144: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4416K->512K(4928K), 0.0025441 secs] 4416K->1036K(15872K), 0.0025948 secs] [Times: user=0.01 sys=0.00, real=0.01 secs] 
+2012-02-20T14:16:03.023+0100: 0.244: [GC 0.244: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4921K->512K(4928K), 0.0034543 secs] 5446K->1845K(15872K), 0.0035080 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:03.054+0100: 0.280: [GC 0.280: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     379360 bytes,     379360 total
+: 3960K->370K(4928K), 0.0028706 secs] 5294K->3106K(15872K), 0.0029236 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:03.226+0100: 0.445: [GC 0.445: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4786K->512K(4928K), 0.0037039 secs] 7522K->3821K(15872K), 0.0038288 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:03.320+0100: 0.535: [GC 0.535: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4928K->512K(4928K), 0.0055937 secs] 8237K->4782K(15872K), 0.0056501 secs] [Times: user=0.02 sys=0.00, real=0.02 secs] 
+2012-02-20T14:16:03.492+0100: 0.704: [GC 0.705: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4928K->512K(4928K), 0.0067202 secs] 9198K->6098K(15872K), 0.0067787 secs] [Times: user=0.02 sys=0.00, real=0.01 secs] 
+2012-02-20T14:16:03.617+0100: 0.823: [GC 0.823: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4928K->512K(4928K), 0.0076548 secs] 10514K->7461K(15872K), 0.0077112 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:03.789+0100: 0.993: [GC 0.993: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4928K->512K(4928K), 0.0078151 secs] 11877K->8547K(15872K), 0.0078756 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:03.867+0100: 1.072: [GC 1.072: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4928K->512K(4928K), 0.0068476 secs] 12963K->9392K(15872K), 0.0069114 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:03.929+0100: 1.140: [GC 1.140: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4928K->512K(4928K), 0.0057310 secs] 13808K->10124K(15872K), 0.0057853 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.023+0100: 1.230: [GC 1.230: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     524288 bytes,     524288 total
+: 4923K->512K(4928K), 0.0044415 secs] 14535K->10786K(15872K), 0.0044883 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.132+0100: 1.340: [GC 1.340: [DefNew
+Desired survivor size 262144 bytes, new threshold 15 (max 15)
+- age   1:     142664 bytes,     142664 total
+: 4928K->139K(4928K), 0.0027747 secs] 15202K->10924K(15872K), 0.0028188 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.195+0100: 1.401: [GC 1.401: [DefNew
+Desired survivor size 262144 bytes, new threshold 2 (max 15)
+- age   1:     140472 bytes,     140472 total
+- age   2:     140984 bytes,     281456 total
+: 4555K->274K(4928K), 0.0013491 secs] 15340K->11060K(15872K), 0.0013787 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.242+0100: 1.453: [GC 1.453: [DefNew
+Desired survivor size 262144 bytes, new threshold 1 (max 15)
+- age   1:     486664 bytes,     486664 total
+- age   2:      37624 bytes,     524288 total
+: 4690K->512K(4928K), 0.0042753 secs]1.457: [Tenured: 11334K->9898K(11456K), 0.0587083 secs] 15475K->9898K(16384K), [Perm : 6046K->6046K(12288K)], 0.0631635 secs] [Times: user=0.05 sys=0.01, real=0.06 secs] 
+2012-02-20T14:16:04.382+0100: 1.572: [GC 1.572: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     851968 bytes,     851968 total
+: 6656K->832K(7488K), 0.0042817 secs] 16554K->10991K(23988K), 0.0043386 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.413+0100: 1.614: [GC 1.614: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     549864 bytes,     549864 total
+: 7488K->536K(7488K), 0.0037771 secs] 17647K->11375K(23988K), 0.0038429 secs] [Times: user=0.02 sys=0.00, real=0.02 secs] 
+2012-02-20T14:16:04.507+0100: 1.696: [GC 1.696: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     649536 bytes,     649536 total
+: 7184K->634K(7488K), 0.0035506 secs] 18023K->11660K(23988K), 0.0036055 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.585+0100: 1.775: [GC 1.776: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     851968 bytes,     851968 total
+: 7290K->832K(7488K), 0.0057577 secs] 18316K->12824K(23988K), 0.0058268 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.616+0100: 1.816: [GC 1.816: [DefNew
+Desired survivor size 425984 bytes, new threshold 15 (max 15)
+- age   1:     277480 bytes,     277480 total
+: 7488K->270K(7488K), 0.0046002 secs] 19480K->13081K(23988K), 0.0047408 secs] [Times: user=0.01 sys=0.00, real=0.02 secs] 
+2012-02-20T14:16:04.648+0100: 1.848: [GC 1.848: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     475448 bytes,     475448 total
+- age   2:     242096 bytes,     717544 total
+: 6926K->700K(7488K), 0.0035755 secs] 19737K->13511K(23988K), 0.0036358 secs] [Times: user=0.02 sys=0.00, real=0.02 secs] 
+2012-02-20T14:16:04.679+0100: 1.879: [GC 1.879: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     509920 bytes,     509920 total
+: 7356K->497K(7488K), 0.0039655 secs] 20167K->13981K(23988K), 0.0040232 secs] [Times: user=0.02 sys=0.00, real=0.02 secs] 
+2012-02-20T14:16:04.726+0100: 1.914: [GC 1.914: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     851968 bytes,     851968 total
+: 7153K->832K(7488K), 0.0056069 secs] 20637K->15362K(23988K), 0.0056658 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.757+0100: 1.957: [GC 1.957: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     851968 bytes,     851968 total
+: 7488K->832K(7488K), 0.0062864 secs] 22018K->16212K(23988K), 0.0063428 secs] [Times: user=0.02 sys=0.00, real=0.02 secs] 
+2012-02-20T14:16:04.788+0100: 1.982: [GC 1.982: [DefNew
+Desired survivor size 425984 bytes, new threshold 15 (max 15)
+- age   1:     424536 bytes,     424536 total
+: 7488K->414K(7488K), 0.0048155 secs] 22868K->16612K(23988K), 0.0048790 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.804+0100: 2.001: [GC 2.002: [DefNew
+Desired survivor size 425984 bytes, new threshold 2 (max 15)
+- age   1:     191472 bytes,     191472 total
+- age   2:     317176 bytes,     508648 total
+: 7070K->496K(7488K), 0.0027610 secs] 23268K->16694K(23988K), 0.0028044 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2012-02-20T14:16:04.820+0100: 2.022: [GC 2.022: [DefNew
+Desired survivor size 425984 bytes, new threshold 2 (max 15)
+- age   1:     403136 bytes,     403136 total
+- age   2:     114600 bytes,     517736 total
+: 7152K->505K(7488K), 0.0036035 secs] 23350K->16936K(23988K), 0.0036621 secs] [Times: user=0.01 sys=0.00, real=0.02 secs] 
+2012-02-20T14:16:04.882+0100: 2.079: [GC 2.079: [DefNew
+Desired survivor size 425984 bytes, new threshold 1 (max 15)
+- age   1:     706696 bytes,     706696 total
+- age   2:     145272 bytes,     851968 total
+: 7161K->832K(7488K), 0.0064124 secs]2.085: [Tenured: 16930K->17011K(17012K), 0.0774916 secs] 23592K->17100K(24500K), [Perm : 8223K->8223K(12288K)], 0.0840676 secs] [Times: user=0.09 sys=0.00, real=0.09 secs] 
+2012-02-20T14:16:05.101+0100: 2.294: [GC 2.294: [DefNew
+Desired survivor size 720896 bytes, new threshold 1 (max 15)
+- age   1:    1441792 bytes,    1441792 total
+: 11392K->1408K(12800K), 0.0199371 secs] 28403K->18628K(41156K), 0.0199957 secs] [Times: user=0.02 sys=0.00, real=0.01 secs] 
+Heap
+ def new generation   total 12800K, used 11025K [0x22a00000, 0x237e0000, 0x27f50000)
+  eden space 11392K,  84% used [0x22a00000, 0x23364550, 0x23520000)
+  from space 1408K, 100% used [0x23680000, 0x237e0000, 0x237e0000)
+  to   space 1408K,   0% used [0x23520000, 0x23520000, 0x23680000)
+ tenured generation   total 28356K, used 17220K [0x27f50000, 0x29b01000, 0x32a00000)
+   the space 28356K,  60% used [0x27f50000, 0x29021050, 0x29021200, 0x29b01000)
+ compacting perm gen  total 12288K, used 8368K [0x32a00000, 0x33600000, 0x36a00000)
+   the space 12288K,  68% used [0x32a00000, 0x3322c390, 0x3322c400, 0x33600000)
+    ro space 10240K,  45% used [0x36a00000, 0x36e82710, 0x36e82800, 0x37400000)
+    rw space 12288K,  54% used [0x37400000, 0x37a86488, 0x37a86600, 0x38000000)

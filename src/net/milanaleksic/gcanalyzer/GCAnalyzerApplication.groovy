@@ -33,8 +33,8 @@ class GCAnalyzerApplication implements ParsingFinishedListener {
             def stackTrace = Utils.getSmallerStackTraceForThrowable(e)
             if (stackTrace && stackTrace.size() > STACK_TRACE_MAX_LENGTH)
                 stackTrace = stackTrace.substring(0, STACK_TRACE_MAX_LENGTH) + "..."
-            JOptionPane.showMessageDialog(null, "Exception occurred: ${e.getMessage()}\r\n\r\nDetails:\r\n${stackTrace}")
             e.printStackTrace()
+            JOptionPane.showMessageDialog(null, "Exception occurred: ${e.getMessage()}\r\n\r\nDetails:\r\n${stackTrace}")
         } as UncaughtExceptionHandler)
 
         AbstractGCAnalyzerController.setUpNimbusLookAndFeel()

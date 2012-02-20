@@ -10,26 +10,31 @@ import net.milanaleksic.gcanalyzer.util.Utils
  */
 class GCLogParser {
 
+
+
     def private static final statisticDetails = $/
-                (\[                      # 22/1 - [helper group]
-                     (                   # 23/2 - [helper group]
-                         (\w+)\:\s       # 24/3 (GROUP_STATS_GC_NAME) - GC name
-                         ([\dKMG]+)->    # 25/4 (GROUP_STATS_GC_START_VALUE) - GC start value
-                         ([\dKMG]+)\(    # 26/5 (GROUP_STATS_GC_END_VALUE) - GC end value
-                         ([\dKMG]+)\)    # 27/6 (GROUP_STATS_GC_MAX_VALUE) - memory segment Max size
+                (\[                      # 23/1 - [helper group]
+                     (                   # 24/2 - [helper group]
+                         (\w+)\s?:\s     # 25/3 (GROUP_STATS_GC_NAME) - GC name
+                         ([\dKMG]+)->    # 26/4 (GROUP_STATS_GC_START_VALUE) - GC start value
+                         ([\dKMG]+)\(    # 27/5 (GROUP_STATS_GC_END_VALUE) - GC end value
+                         ([\dKMG]+)\)    # 28/6 (GROUP_STATS_GC_MAX_VALUE) - memory segment Max size
                      )+
+					 (,\s                # 29/7 - [helper group]
+					     ([\d\.]+)       # 30/8 - [helper group]
+				     \ssecs)?
                  \]\s?)
                 |
-                (                        # 28/7 - [helper group]
-                    ([\dKMG]+)->         # 29/8 (GROUP_STATS_GC_COMPLETE_START_VALUE) - non-PermGen start value
-                    ([\dKMG]+)\(         # 30/9 (GROUP_STATS_GC_COMPLETE_END_VALUE) - non-PermGen end value
-                    ([\dKMG]+)\)\s?      # 31/10 (GROUP_STATS_GC_COMPLETE_MAX_VALUE) - non-PermGen Max size
+                (                        # 31/9 - [helper group]
+                    ([\dKMG]+)->         # 32/10 (GROUP_STATS_GC_COMPLETE_START_VALUE) - non-PermGen start value
+                    ([\dKMG]+)\(         # 33/11 (GROUP_STATS_GC_COMPLETE_END_VALUE) - non-PermGen end value
+                    ([\dKMG]+)\),?\s?    # 34/12 (GROUP_STATS_GC_COMPLETE_MAX_VALUE) - non-PermGen Max size
                 )
     /$
 
     def private static final timingDetails = $/
-                (\w+)=                   # 35/1 (GROUP_TIMINGS_TITLE) - timing name (user, sys, real)
-                ([\d\.]+)                # 36/2 (GROUP_TIMINGS_VALUE) - timing value (user, sys, real)
+                (\w+)=                   # 38/1 (GROUP_TIMINGS_TITLE) - timing name (user, sys, real)
+                ([\d\.]+)                # 39/2 (GROUP_TIMINGS_VALUE) - timing value (user, sys, real)
     /$
 
     private static final Pattern completeLineRegEx = Pattern.compile($/
@@ -42,32 +47,33 @@ class GCLogParser {
 			([Ful\s]+)?                  # 10 - [helper group]
 			GC\s?
 			(\(System\))?                # 11 - [helper group]
+			(\d+\.\d+:\s?)?              # 12 - [helper group]
 		)
-		(                                # 12 (GROUP_MAIN_SURVIVOR_SUBGROUP) - [sub-group]
+		(                                # 13 (GROUP_MAIN_SURVIVOR_SUBGROUP) - [sub-group]
 			[^\d]+
-			(\d+)                        # 13 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
+			(\d+)                        # 14 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
 			[^\d]+
-			(\d+)                        # 14 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
+			(\d+)                        # 15 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
 			[^\(]+
 			\(max\s
-			(\d+)                        # 15 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
-			(                            # 16 - [helper group]
+			(\d+)                        # 16 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
+			(                            # 17 - [helper group]
 				[^\d\[]+
-				(                        # 17 - [helper group]
-					(\d+)(?=\stotal\s)   # 18 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
+				(                        # 18 - [helper group]
+					(\d+)(?=\stotal\s)   # 19 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
 				)?
-				(\d+)?                   # 19 - [helper group]
+				(\d+)?                   # 20 - [helper group]
 			)+
 		)?\s
-        (                                # 20 (GROUP_MAIN_STATISTICS_SUBGROUP) - [sub-group]
-            (                            # 21 - [helper group]
+        (                                # 21 (GROUP_MAIN_STATISTICS_SUBGROUP) - [sub-group]
+            (                            # 22 - [helper group]
                 $statisticDetails
             )+
         )
-        ,\s([\d\.]+)\ssecs\]             # 32 (GROUP_MAIN_TIMING_TOTAL) - total garbage collection event time
+        ,\s([\d\.]+)\ssecs\]             # 35 (GROUP_MAIN_TIMING_TOTAL) - total garbage collection event time
         \s?
-        (\[Times:\s                      # 33 (GROUP_MAIN_TIMING_SUBGROUP) - [sub-group]
-            (                            # 34 - [helper group]
+        (\[Times:\s                      # 36 (GROUP_MAIN_TIMING_SUBGROUP) - [sub-group]
+            (                            # 37 - [helper group]
                 $timingDetails
             ,?\s)+
         secs\]\s?)?
@@ -135,16 +141,16 @@ class GCLogParser {
     private static final int GROUP_MAIN_TIME_SINCE_PROGRAM_START = 8
     private static final int GROUP_MAIN_EVENT_NAME = 9
 
-    private static final int GROUP_MAIN_SURVIVOR_SUBGROUP = 12
-    private static final int GROUP_MAIN_SURVIVOR_DESIRED_SIZE = 13
-	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_NEW = 14
-	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_MAX = 15
-	private static final int GROUP_MAIN_SURVIVOR_TOTAL = 18
+    private static final int GROUP_MAIN_SURVIVOR_SUBGROUP = 13
+    private static final int GROUP_MAIN_SURVIVOR_DESIRED_SIZE = 14
+	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_NEW = 15
+	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_MAX = 16
+	private static final int GROUP_MAIN_SURVIVOR_TOTAL = 19
 
-    private static final int GROUP_MAIN_STATISTICS_SUBGROUP = 20
+    private static final int GROUP_MAIN_STATISTICS_SUBGROUP = 21
 
-    private static final int GROUP_MAIN_TIMING_TOTAL = 32
-    private static final int GROUP_MAIN_TIMING_SUBGROUP = 33
+    private static final int GROUP_MAIN_TIMING_TOTAL = 35
+    private static final int GROUP_MAIN_TIMING_SUBGROUP = 36
 
     private void processLine(String line, LinkedList<GCEvent> linkedList) {
         def matcher = (line =~ completeLineRegEx)
@@ -174,7 +180,6 @@ class GCLogParser {
             }
 
             def userTiming = null, sysTiming = null, realTiming = null
-            Map<String, SingleGCStatistic> stats = extractStatisticsData(matcher.group(GROUP_MAIN_STATISTICS_SUBGROUP))
             def timingsString = matcher.group(GROUP_MAIN_TIMING_SUBGROUP)
             if (timingsString) {
                 Map<String, Long> timings = extractTimings(timingsString)
@@ -185,9 +190,10 @@ class GCLogParser {
             }
 
             long completeEventTimeInMicroSeconds = new BigDecimal(matcher.group(GROUP_MAIN_TIMING_TOTAL)) * 1000 * 1000
+            GCStatistics stats = convertMapToGCStatistics(extractStatisticsData(matcher.group(GROUP_MAIN_STATISTICS_SUBGROUP)))
 
             def event = new GCEvent(moment: time, momentInMillis: timeMs,
-                    gcEventName: gcEventName, stats: Collections.unmodifiableMap(stats),
+                    gcEventName: gcEventName, stats: stats,
                     survivorDetails: survivorDetails,
                     userTiming: userTiming, sysTiming: sysTiming, realTiming: realTiming,
                     completeEventTimeInMicroSeconds: completeEventTimeInMicroSeconds
@@ -200,22 +206,34 @@ class GCLogParser {
         }
     }
 
+    private GCStatistics convertMapToGCStatistics(Map<String, GCStatistic> stats) {
+        GCStatistic youngGeneration = stats.find { stat -> GCType.YOUNG.knownMappings().any {it == stat.key} }?.value
+        GCStatistic oldGeneration = stats.find { stat -> GCType.OLD.knownMappings().any {it == stat.key} }?.value
+        GCStatistic permanentGeneration = stats.find { stat -> GCType.PERM.knownMappings().any {it == stat.key} }?.value
+        GCStatistic heapWithoutPermGen = stats[null]
+        assert heapWithoutPermGen : "Heap size information must be present in each GC event $stats"
+        return new GCStatistics(
+                youngGeneration: youngGeneration, oldGeneration: oldGeneration,
+                permanentGeneration: permanentGeneration, heapWithoutPermGen: heapWithoutPermGen
+        )
+    }
+
     private static final int GROUP_STATS_GC_NAME = 3
     private static final int GROUP_STATS_GC_START_VALUE = 4
     private static final int GROUP_STATS_GC_END_VALUE = 5
     private static final int GROUP_STATS_GC_MAX_VALUE = 6
-    private static final int GROUP_STATS_GC_COMPLETE_START_VALUE = 8
-    private static final int GROUP_STATS_GC_COMPLETE_END_VALUE = 9
-    private static final int GROUP_STATS_GC_COMPLETE_MAX_VALUE = 10
+    private static final int GROUP_STATS_GC_COMPLETE_START_VALUE = 10
+    private static final int GROUP_STATS_GC_COMPLETE_END_VALUE = 11
+    private static final int GROUP_STATS_GC_COMPLETE_MAX_VALUE = 12
 
-    private Map<String, SingleGCStatistic> extractStatisticsData(String statisticsString) {
+    private Map<String, GCStatistic> extractStatisticsData(String statisticsString) {
         if (!statisticsString)
             throw new RuntimeException("Statistics data sub-group must not be null")
-        Map<String, SingleGCStatistic> stats = [:]
+        Map<String, GCStatistic> stats = [:]
         def statisticsMatcher = statisticDetailsRegEx.matcher(statisticsString)
         while (statisticsMatcher.find()) {
             String gcName = statisticsMatcher.group(GROUP_STATS_GC_NAME)
-            stats[gcName] = new SingleGCStatistic(gcName: gcName,
+            stats[gcName] = new GCStatistic(gcName: gcName,
                     startValueInB: Utils.convertMemoryValueStringToLong(
                             statisticsMatcher.group(gcName ?
                                 GROUP_STATS_GC_START_VALUE :

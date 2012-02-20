@@ -1,14 +1,12 @@
 package net.milanaleksic.gcanalyzer.parser
 
-import groovy.transform.Immutable
-
 /**
  * User: Milan Aleksic
  * Date: 1/29/12
  * Time: 12:09 PM
  */
-@Immutable
-final class SingleGCStatistic {
+@groovy.transform.Immutable
+final class GCStatistic {
 
     String gcName
 
