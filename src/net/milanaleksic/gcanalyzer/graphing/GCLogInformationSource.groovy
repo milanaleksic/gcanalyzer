@@ -526,11 +526,17 @@ class GCLogInformationSource {
     }
 
     public double averageYoungGCEventLength() {
-        sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents() / 1000
+        if (numberOfDetectedYoungGCEvents() == 0)
+            return 0
+        double ofTheJedi = sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents() / 1000
+        return ofTheJedi
     }
 
     public double averageFullGCEventLength() {
-        sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents() / 1000
+        if (numberOfDetectedFullGCEvents() == 0)
+            return 0
+        double ofTheJedi = sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents() / 1000
+        return ofTheJedi
     }
 
     @Cacheable
@@ -557,7 +563,10 @@ class GCLogInformationSource {
                     sum += Math.pow(event.completeEventTimeInMicroSeconds - averageMicrosecondsForFullGC, 2)
                 }
             }
-            return Math.sqrt((double) sum / (numberOfDetectedFullGCEvents() - 1)) / 1000
+            double ofTheJedi = Math.sqrt((double) sum / (numberOfDetectedFullGCEvents() - 1)) / 1000
+            if (ofTheJedi == -0.0)
+                ofTheJedi = 0
+            return ofTheJedi
         }
     }
 

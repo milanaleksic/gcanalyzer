@@ -71,7 +71,7 @@ class GCLogParserTest {
         assertThat(event.userTiming, equalTo(10L))
         assertThat(event.sysTiming, equalTo(20L))
         assertThat(event.realTiming, equalTo(30L))
-        assertThat(event.completeEventTimeInMicroSeconds, equalTo(2901L))
+        assertThat(event.completeEventTimeInMicroSeconds, equalTo(2902L))
     }
 
     @Test
@@ -159,6 +159,34 @@ Desired survivor size 655360 bytes, new threshold 5 (max 10)
     }
 
     @Test
+    void serialGCComplexFullGC() {
+        GCEvents events = new GCLogParser().parse('2012-02-20T15:09:24.950+0100: 748.058: [Full GC 748.058: [Tenured: 18228K->10780K(27988K), 0.0896265 secs] 20394K->10780K(40660K), [Perm : 10023K->10023K(12288K)], 0.0896886 secs]')
+        assertThat(events.size(), equalTo(1))
+        GCEvent event = events.hashMapOnMillis[748058L]
+        assertThat(event, not(nullValue(GCEvent.class)))
+
+        assertThat(event.gcEventName, equalTo('Full GC'))
+        assertThat(event.isFullGarbageCollection(), equalTo(true))
+        assertThat(event.isExplicitFullGarbageCollection(), equalTo(false))
+
+        assertThat(event.stats.youngGeneration, nullValue(GCStatistic.class))
+        assertThat(event.stats.heapWithoutPermGen.startValueInB, equalTo(20394L*1024))
+        assertThat(event.stats.heapWithoutPermGen.endValueInB, equalTo(10780L*1024))
+        assertThat(event.stats.heapWithoutPermGen.maxValueInB, equalTo(40660L*1024))
+        assertThat(event.stats.oldGeneration.startValueInB, equalTo(18228L*1024))
+        assertThat(event.stats.oldGeneration.endValueInB, equalTo(10780L*1024))
+        assertThat(event.stats.oldGeneration.maxValueInB, equalTo(27988L*1024))
+        assertThat(event.stats.permanentGeneration.startValueInB, equalTo(10023L*1024))
+        assertThat(event.stats.permanentGeneration.endValueInB, equalTo(10023L*1024))
+        assertThat(event.stats.permanentGeneration.maxValueInB, equalTo(12288L*1024))
+        assertThat(event.userTiming, nullValue(Long.class))
+        assertThat(event.sysTiming, nullValue(Long.class))
+        assertThat(event.realTiming, nullValue(Long.class))
+        assertThat(event.completeEventTimeInMicroSeconds, equalTo(89689L))
+        assertThat(event.survivorDetails, nullValue(GCSurvivorDetails.class))
+    }
+
+    @Test
     void serialGCComplexNonFullGC() {
         GCEvents events = new GCLogParser().parse('''2012-02-20T14:56:58.644+0100: 1.847: [GC 1.847: [DefNew
 Desired survivor size 425984 bytes, new threshold 4 (max 15)
@@ -175,16 +203,16 @@ Desired survivor size 425984 bytes, new threshold 4 (max 15)
         assertThat(event.isExplicitFullGarbageCollection(), equalTo(false))
 
         assertThat(event.stats.youngGeneration.startValueInB, equalTo(6938L*1024)) // 1105K->0K(44544K)
-        assertThat(event.stats.youngGeneration.endValueInB, equalTo(700L))
+        assertThat(event.stats.youngGeneration.endValueInB, equalTo(700L*1024))
         assertThat(event.stats.youngGeneration.maxValueInB, equalTo(7488L*1024))
         assertThat(event.stats.heapWithoutPermGen.startValueInB, equalTo(19845L*1024))
         assertThat(event.stats.heapWithoutPermGen.endValueInB, equalTo(13607L*1024))
         assertThat(event.stats.heapWithoutPermGen.maxValueInB, equalTo(23980L*1024))
         assertThat(event.stats.oldGeneration, nullValue(GCStatistic.class))
         assertThat(event.stats.permanentGeneration, nullValue(GCStatistic.class))
-        assertThat(event.userTiming, equalTo(123L))
-        assertThat(event.sysTiming, equalTo(321L))
-        assertThat(event.realTiming, equalTo(444L))
+        assertThat(event.userTiming, equalTo(1230L))
+        assertThat(event.sysTiming, equalTo(3210L))
+        assertThat(event.realTiming, equalTo(4440L))
         assertThat(event.completeEventTimeInMicroSeconds, equalTo(3438L))
         assertThat(event.survivorDetails.newThreshold, equalTo(4))
         assertThat(event.survivorDetails.maxThreshold, equalTo(15))

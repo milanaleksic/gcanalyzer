@@ -16,11 +16,11 @@ final class GCEvent {
 
     def String gcEventName
 
-    def long userTiming
+    def Long userTiming
 
-    def long sysTiming
+    def Long sysTiming
 
-    def long realTiming
+    def Long realTiming
 
     def long completeEventTimeInMicroSeconds
 

@@ -1,21 +1,38 @@
 <?xml version="1.0"?>
 <RegexProject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Regex>[^\d]+
-(\d+)                        # 1 - desired survivor size
-[^\d]+
-(\d+)                        # 2 - new threshold
-[^\(]+
-\(max\s
-(\d+)                        # 3 - max threshold
-(                            # 4 - [helper group]
-	[^\d]+
-	(                        # 5 - [helper group]
-		(\d+)(?=\stotal\s\Z) # 6 - total survivor occupancy in the non-empty survivor space
-	)?
-	(\d+)?                   # 7 - [helper group] 
-)+</Regex>
-  <Input>Desired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   12345678 bytes,   232323 total - age   2:   56565656 bytes,   89898989 total </Input>
-  <Options>IgnoreCase Multiline IgnorePatternWhitespace</Options>
+  <Regex>(                                # 1 (GROUP_MAIN_SURVIVOR_SUBGROUP) - [sub-group]
+    (\[                          # 2 - [helper group]
+        (\w+)(?=Desired\s)       # 3 - [helper group]
+    )?      
+    [^\d]+
+    (\d+)                        # 4 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
+    [^\d]+
+    (\d+)                       # 5 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
+    [^\(]+
+    \(max\s
+    (\d+)                        # 6 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
+    (                            # 7 - [helper group]   
+        (                        # 8
+		    [^\d\[]+        
+            (\d+)(?=\stotal:\s+)  # 9 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
+			\stotal:\s+
+        )
+		|
+        (                        # 10
+			[^\d\[]+        
+			(                    # 11 - [helper group]
+                (\d+)(?=\stotal\s) # 12 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
+            )?
+            (\d+)?               # 13 - [helper group]
+        )
+    )+
+)
+</Regex>
+  <Input>[DefNewDesired survivor size 425984 bytes, new threshold 1 (max 15)- age   1:     457704 bytes,     57704 total- age   2:     259368 bytes,     717072 total: 6938K-&gt;700K(7488K)
+
+[GCDesired survivor size 655360 bytes, new threshold 7 (max 15)- age   1:   16690480 bytes,   16690480 total [PSYoungGen: 8959K-&gt;631K(8960K)] 
+</Input>
+  <Options>IgnoreCase IgnorePatternWhitespace</Options>
   <FileName>C:\Milan\SourceCode\GCAnalyzer\docs\survivor space.express</FileName>
   <ReplaceString />
   <InputFilename />

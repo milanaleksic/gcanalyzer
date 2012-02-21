@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<RegexProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<RegexProject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Regex>        (\d{4})-(\d{2})-(\d{2})T         # 1, 2, 3 (GROUP_MAIN_DATE_YEAR, GROUP_MAIN_DATE_MONTH, GROUP_MAIN_DATE_DATE) - date parts
         (\d{2}):(\d{2}):(\d{2})\.(\d{3}) # 4, 5, 6, 7 (GROUP_MAIN_DATE_HOUR, GROUP_MAIN_DATE_MIN, GROUP_MAIN_DATE_SEC, GROUP_MAIN_DATE_MILLIS) - time parts
         \+\d{4}:\s
@@ -11,48 +11,68 @@
 		)\s?
 		(\d+\.\d+:\s?)?                  # 12 - [helper group]
 		(                                # 13 (GROUP_MAIN_SURVIVOR_SUBGROUP) - [sub-group]
+			(\[                          # 14 - [helper group]
+				(\w+)(?=Desired\s)       # 15 - [helper group]
+			)?      
 			[^\d]+
-			(\d+)                        # 14 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
+			(\d+)                        # 16 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
 			[^\d]+
-			(\d+)                        # 15 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
+			(\d+)                        # 17 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
 			[^\(]+
 			\(max\s
-			(\d+)                        # 16 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
-			(                            # 17 - [helper group]
-				[^\d\[]+
-				(                        # 18 - [helper group]
-					(\d+)(?=\stotal\s)   # 19 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
-				)?
-				(\d+)?                   # 20 - [helper group]
-			)+
-		)?\s                           
-        (                                # 21 (GROUP_MAIN_STATISTICS_SUBGROUP) - [sub-group]
-            (                            # 22 - [helper group]
-                (\[                      # 23/1 - [helper group]
-                     (                   # 24/2 - [helper group]
-                         (\w+)\s?:\s     # 25/3 (GROUP_STATS_GC_NAME) - GC name
-                         ([\dKMG]+)-&gt;    # 26/4 (GROUP_STATS_GC_START_VALUE) - GC start value
-                         ([\dKMG]+)\(    # 27/5 (GROUP_STATS_GC_END_VALUE) - GC end value
-                         ([\dKMG]+)\)    # 28/6 (GROUP_STATS_GC_MAX_VALUE) - memory segment Max size
+			(\d+)                        # 18 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
+		    (                            # 19 - [helper group]   
+		        (                        # 20 - [helper group]
+				    [^\d\[]+        
+		            (\d+)(?=\stotal:\s)  # 21 (GROUP_MAIN_SURVIVOR_TOTAL_SERIAL) - total survivor occupancy in the non-empty survivor space for Serial GC
+					\stotal:\s
+		        )
+				|
+		        (                        # 22 - [helper group]
+					[^\d\[]+        
+					(                    # 23 - [helper group]
+		                (\d+)(?=\stotal\s) # 24 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
+		            )?
+		            (\d+)?               # 25 - [helper group]
+		        )
+		    )+
+		)?
+        (                                # 26 (GROUP_MAIN_STATISTICS_SUBGROUP) - [sub-group]
+            (                            # 27 - [helper group]
+                (\[                      # 28/1 - [helper group]
+                     (                   # 29/2 - [helper group]
+                         (\w+)\s?:\s     # 30/3 (GROUP_STATS_GC_NAME) - GC name
+                         ([\dKMG]+)-&gt;    # 31/4 (GROUP_STATS_GC_START_VALUE) - GC start value
+                         ([\dKMG]+)\(    # 32/5 (GROUP_STATS_GC_END_VALUE) - GC end value
+                         ([\dKMG]+)\)    # 33/6 (GROUP_STATS_GC_MAX_VALUE) - memory segment Max size
                      )+
-					 (,\s                # 29/7 - [helper group]
-					     ([\d\.]+)       # 30/8 - [helper group]
+					 (,\s                # 34/7 - [helper group]
+					     ([\d\.]+)       # 35/8 - [helper group]
 				     \ssecs)?
                  \]\s?)
-                |
-                (                        # 31/9 - [helper group]
-                    ([\dKMG]+)-&gt;         # 32/10 (GROUP_STATS_GC_COMPLETE_START_VALUE) - non-PermGen start value
-                    ([\dKMG]+)\(         # 33/11 (GROUP_STATS_GC_COMPLETE_END_VALUE) - non-PermGen end value
-                    ([\dKMG]+)\),?\s?    # 34/12 (GROUP_STATS_GC_COMPLETE_MAX_VALUE) - non-PermGen Max size
+				|
+                (                        # 36/9- [helper group]
+                    ([\dKMG]+)-&gt;         # 37/10 (GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE) - Serial GC's Young Generation GC start value
+                    ([\dKMG]+)\(         # 38/11 (GROUP_STATS_GC_SERIAL_YOUNG_GC_END_VALUE) - Serial GC's Young Generation GC end value
+                    ([\dKMG]+)\),?\s?    # 39/12 (GROUP_STATS_GC_SERIAL_YOUNG_GC_MAX_VALUE) - Serial GC's Young Generation GC Max size
+					 (,\s                # 40/13 - [helper group]
+					     ([\d\.]+)       # 41/14 - [helper group]
+				     \ssecs\]\s)
                 )
+                |
+                (                        # 42/15 - [helper group]
+                    ([\dKMG]+)-&gt;         # 43/16 (GROUP_STATS_GC_COMPLETE_START_VALUE) - non-PermGen start value
+                    ([\dKMG]+)\(         # 44/17 (GROUP_STATS_GC_COMPLETE_END_VALUE) - non-PermGen end value
+                    ([\dKMG]+)\),?\s?    # 45/18 (GROUP_STATS_GC_COMPLETE_MAX_VALUE) - non-PermGen Max size
+                )                
             )+
         )
-        ,\s([\d\.]+)\ssecs\]             # 35 (GROUP_MAIN_TIMING_TOTAL) - total garbage collection event time
+        ,\s([\d\.]+)\ssecs\]             # 46 (GROUP_MAIN_TIMING_TOTAL) - total garbage collection event time
         \s?
-        (\[Times:\s                      # 36 (GROUP_MAIN_TIMING_SUBGROUP) - [sub-group]
-            (                            # 37 - [helper group]
-                (\w+)=                   # 38/1 (GROUP_TIMINGS_TITLE) - timing name (user, sys, real)
-                ([\d\.]+)                # 39/2 (GROUP_TIMINGS_VALUE) - timing value (user, sys, real)
+        (\[Times:\s                      # 47 (GROUP_MAIN_TIMING_SUBGROUP) - [sub-group]
+            (                            # 48 - [helper group]
+                (\w+)=                   # 49/1 (GROUP_TIMINGS_TITLE) - timing name (user, sys, real)
+                ([\d\.]+)                # 50/2 (GROUP_TIMINGS_VALUE) - timing value (user, sys, real)
             ,?\s)+
         secs\]\s?)?</Regex>
   <Input>----------------- THROUGHPUT GC events
@@ -70,9 +90,9 @@
 2012-02-20T14:56:58.644+0100: 1.847: [GC 1.847: [DefNewDesired survivor size 425984 bytes, new threshold 1 (max 15)- age   1:     457704 bytes,     57704 total- age   2:     259368 bytes,     717072 total: 6938K-&gt;700K(7488K), 0.0033936 secs] 19845K-&gt;13607K(23980K), 0.0034379 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
 
 2012-02-20T15:09:24.950+0100: 748.058: [Full GC 748.058: [Tenured: 18228K-&gt;10780K(27988K), 0.0896265 secs] 20394K-&gt;10780K(40660K), [Perm : 10023K-&gt;10023K(12288K)], 0.0896886 secs]</Input>
-  <Options>IgnoreCase Multiline Singleline IgnorePatternWhitespace</Options>
-  <FileName>M:\SourceCode\workspaces\GanymedeWorkspace\GCAnalyzer\docs\regex.express</FileName>
+  <Options>IgnoreCase Multiline IgnorePatternWhitespace</Options>
+  <FileName>C:\Milan\SourceCode\GCAnalyzer\docs\regex.express</FileName>
   <ReplaceString />
-  <InputFilename>M:\SourceCode\workspaces\GanymedeWorkspace\WARPToolkit\resources\gc\gc_log_apache_small.log</InputFilename>
+  <InputFilename />
   <UpdateEventsEnabled>true</UpdateEventsEnabled>
 </RegexProject>

@@ -2,6 +2,8 @@ package net.milanaleksic.gcanalyzer.parser
 
 import java.util.regex.Pattern
 import net.milanaleksic.gcanalyzer.util.Utils
+import java.math.RoundingMode
+import java.math.MathContext
 
 /**
  * User: Milan Aleksic
@@ -13,28 +15,37 @@ class GCLogParser {
 
 
     def private static final statisticDetails = $/
-                (\[                      # 23/1 - [helper group]
-                     (                   # 24/2 - [helper group]
-                         (\w+)\s?:\s     # 25/3 (GROUP_STATS_GC_NAME) - GC name
-                         ([\dKMG]+)->    # 26/4 (GROUP_STATS_GC_START_VALUE) - GC start value
-                         ([\dKMG]+)\(    # 27/5 (GROUP_STATS_GC_END_VALUE) - GC end value
-                         ([\dKMG]+)\)    # 28/6 (GROUP_STATS_GC_MAX_VALUE) - memory segment Max size
+                (\[                      # 28/1 - [helper group]
+                     (                   # 29/2 - [helper group]
+                         (\w+)\s?:\s     # 30/3 (GROUP_STATS_GC_NAME) - GC name
+                         ([\dKMG]+)->    # 31/4 (GROUP_STATS_GC_START_VALUE) - GC start value
+                         ([\dKMG]+)\(    # 32/5 (GROUP_STATS_GC_END_VALUE) - GC end value
+                         ([\dKMG]+)\)    # 33/6 (GROUP_STATS_GC_MAX_VALUE) - memory segment Max size
                      )+
-					 (,\s                # 29/7 - [helper group]
-					     ([\d\.]+)       # 30/8 - [helper group]
+					 (,\s                # 34/7 - [helper group]
+					     ([\d\.]+)       # 35/8 - [helper group]
 				     \ssecs)?
                  \]\s?)
+				|
+                (                        # 36/9- [helper group]
+                    ([\dKMG]+)->         # 37/10 (GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE) - Serial GC's Young Generation GC start value
+                    ([\dKMG]+)\(         # 38/11 (GROUP_STATS_GC_SERIAL_YOUNG_GC_END_VALUE) - Serial GC's Young Generation GC end value
+                    ([\dKMG]+)\),?\s?    # 39/12 (GROUP_STATS_GC_SERIAL_YOUNG_GC_MAX_VALUE) - Serial GC's Young Generation GC Max size
+					 (,\s                # 40/13 - [helper group]
+					     ([\d\.]+)       # 41/14 - [helper group]
+				     \ssecs\]\s)
+                )
                 |
-                (                        # 31/9 - [helper group]
-                    ([\dKMG]+)->         # 32/10 (GROUP_STATS_GC_COMPLETE_START_VALUE) - non-PermGen start value
-                    ([\dKMG]+)\(         # 33/11 (GROUP_STATS_GC_COMPLETE_END_VALUE) - non-PermGen end value
-                    ([\dKMG]+)\),?\s?    # 34/12 (GROUP_STATS_GC_COMPLETE_MAX_VALUE) - non-PermGen Max size
+                (                        # 42/15 - [helper group]
+                    ([\dKMG]+)->         # 43/16 (GROUP_STATS_GC_COMPLETE_START_VALUE) - non-PermGen start value
+                    ([\dKMG]+)\(         # 44/17 (GROUP_STATS_GC_COMPLETE_END_VALUE) - non-PermGen end value
+                    ([\dKMG]+)\),?\s?    # 45/18 (GROUP_STATS_GC_COMPLETE_MAX_VALUE) - non-PermGen Max size
                 )
     /$
 
     def private static final timingDetails = $/
-                (\w+)=                   # 38/1 (GROUP_TIMINGS_TITLE) - timing name (user, sys, real)
-                ([\d\.]+)                # 39/2 (GROUP_TIMINGS_VALUE) - timing value (user, sys, real)
+                (\w+)=                   # 49/1 (GROUP_TIMINGS_TITLE) - timing name (user, sys, real)
+                ([\d\.]+)                # 50/2 (GROUP_TIMINGS_VALUE) - timing value (user, sys, real)
     /$
 
     private static final Pattern completeLineRegEx = Pattern.compile($/
@@ -49,30 +60,41 @@ class GCLogParser {
 		)\s?
 		(\d+\.\d+:\s?)?                  # 12 - [helper group]
 		(                                # 13 (GROUP_MAIN_SURVIVOR_SUBGROUP) - [sub-group]
+			(\[                          # 14 - [helper group]
+				(\w+)(?=Desired\s)       # 15 - [helper group]
+			)?
 			[^\d]+
-			(\d+)                        # 14 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
+			(\d+)                        # 16 (GROUP_MAIN_SURVIVOR_DESIRED_SIZE) - desired survivor size
 			[^\d]+
-			(\d+)                        # 15 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
+			(\d+)                        # 17 (GROUP_MAIN_SURVIVOR_THRESHOLD_NEW) - new threshold
 			[^\(]+
 			\(max\s
-			(\d+)                        # 16 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
-			(                            # 17 - [helper group]
-				[^\d\[]+
-				(                        # 18 - [helper group]
-					(\d+)(?=\stotal\s)   # 19 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
-				)?
-				(\d+)?                   # 20 - [helper group]
-			)+
-		)?\s
-        (                                # 21 (GROUP_MAIN_STATISTICS_SUBGROUP) - [sub-group]
-            (                            # 22 - [helper group]
+			(\d+)                        # 18 (GROUP_MAIN_SURVIVOR_THRESHOLD_MAX) - max threshold
+		    (                            # 19 - [helper group]
+		        (                        # 20 - [helper group]
+				    [^\d\[]+
+		            (\d+)(?=\stotal:\s)  # 21 (GROUP_MAIN_SURVIVOR_TOTAL_SERIAL) - total survivor occupancy in the non-empty survivor space for Serial GC
+					\stotal:\s
+		        )
+				|
+		        (                        # 22 - [helper group]
+					[^\d\[]+
+					(                    # 23 - [helper group]
+		                (\d+)(?=\stotal\s) # 24 (GROUP_MAIN_SURVIVOR_TOTAL) - total survivor occupancy in the non-empty survivor space
+		            )?
+		            (\d+)?               # 25 - [helper group]
+		        )
+		    )+
+		)?
+        (                                # 26 (GROUP_MAIN_STATISTICS_SUBGROUP) - [sub-group]
+            (                            # 27 - [helper group]
                 $statisticDetails
             )+
         )
-        ,\s([\d\.]+)\ssecs\]             # 35 (GROUP_MAIN_TIMING_TOTAL) - total garbage collection event time
+        ,\s([\d\.]+)\ssecs\]             # 46 (GROUP_MAIN_TIMING_TOTAL) - total garbage collection event time
         \s?
-        (\[Times:\s                      # 36 (GROUP_MAIN_TIMING_SUBGROUP) - [sub-group]
-            (                            # 37 - [helper group]
+        (\[Times:\s                      # 47 (GROUP_MAIN_TIMING_SUBGROUP) - [sub-group]
+            (                            # 48 - [helper group]
                 $timingDetails
             ,?\s)+
         secs\]\s?)?
@@ -141,15 +163,17 @@ class GCLogParser {
     private static final int GROUP_MAIN_EVENT_NAME = 9
 
     private static final int GROUP_MAIN_SURVIVOR_SUBGROUP = 13
-    private static final int GROUP_MAIN_SURVIVOR_DESIRED_SIZE = 14
-	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_NEW = 15
-	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_MAX = 16
-	private static final int GROUP_MAIN_SURVIVOR_TOTAL = 19
+    private static final int GROUP_MAIN_SURVIVOR_DESIRED_SIZE = 16
+	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_NEW = 17
+	private static final int GROUP_MAIN_SURVIVOR_THRESHOLD_MAX = 18
+    private static final int GROUP_MAIN_SURVIVOR_TOTAL_SERIAL = 21
+    private static final int GROUP_MAIN_SURVIVOR_TOTAL = 24
 
-    private static final int GROUP_MAIN_STATISTICS_SUBGROUP = 21
 
-    private static final int GROUP_MAIN_TIMING_TOTAL = 35
-    private static final int GROUP_MAIN_TIMING_SUBGROUP = 36
+    private static final int GROUP_MAIN_STATISTICS_SUBGROUP = 26
+
+    private static final int GROUP_MAIN_TIMING_TOTAL = 46
+    private static final int GROUP_MAIN_TIMING_SUBGROUP = 47
 
     private void processLine(String line, LinkedList<GCEvent> linkedList) {
         def matcher = (line =~ completeLineRegEx)
@@ -170,7 +194,9 @@ class GCLogParser {
 
             def survivorDetails = null
             if (matcher.group(GROUP_MAIN_SURVIVOR_SUBGROUP)) {
-                String totalSurvivorSize = matcher.group(GROUP_MAIN_SURVIVOR_TOTAL)
+                String totalSurvivorSize = matcher.group(GROUP_MAIN_SURVIVOR_TOTAL_SERIAL)
+                if (!totalSurvivorSize)
+                    totalSurvivorSize = matcher.group(GROUP_MAIN_SURVIVOR_TOTAL)
                 survivorDetails = new GCSurvivorDetails(
                     desiredSize: Long.parseLong(matcher.group(GROUP_MAIN_SURVIVOR_DESIRED_SIZE)),
                     newThreshold: Integer.parseInt(matcher.group(GROUP_MAIN_SURVIVOR_THRESHOLD_NEW)),
@@ -188,7 +214,7 @@ class GCLogParser {
                 assert userTiming != null && sysTiming != null && realTiming != null
             }
 
-            long completeEventTimeInMicroSeconds = new BigDecimal(matcher.group(GROUP_MAIN_TIMING_TOTAL)) * 1000 * 1000
+            long completeEventTimeInMicroSeconds = Math.round(Double.parseDouble(matcher.group(GROUP_MAIN_TIMING_TOTAL)) * 1000 * 1000)
             GCStatistics stats = convertMapToGCStatistics(extractStatisticsData(matcher.group(GROUP_MAIN_STATISTICS_SUBGROUP)))
 
             def event = new GCEvent(moment: time, momentInMillis: timeMs,
@@ -221,9 +247,12 @@ class GCLogParser {
     private static final int GROUP_STATS_GC_START_VALUE = 4
     private static final int GROUP_STATS_GC_END_VALUE = 5
     private static final int GROUP_STATS_GC_MAX_VALUE = 6
-    private static final int GROUP_STATS_GC_COMPLETE_START_VALUE = 10
-    private static final int GROUP_STATS_GC_COMPLETE_END_VALUE = 11
-    private static final int GROUP_STATS_GC_COMPLETE_MAX_VALUE = 12
+    private static final int GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE = 10
+    private static final int GROUP_STATS_GC_SERIAL_YOUNG_GC_END_VALUE = 11
+    private static final int GROUP_STATS_GC_SERIAL_YOUNG_GC_MAX_VALUE = 12
+    private static final int GROUP_STATS_GC_COMPLETE_START_VALUE = 16
+    private static final int GROUP_STATS_GC_COMPLETE_END_VALUE = 17
+    private static final int GROUP_STATS_GC_COMPLETE_MAX_VALUE = 18
 
     private Map<String, GCStatistic> extractStatisticsData(String statisticsString) {
         if (!statisticsString)
@@ -231,21 +260,35 @@ class GCLogParser {
         Map<String, GCStatistic> stats = [:]
         def statisticsMatcher = statisticDetailsRegEx.matcher(statisticsString)
         while (statisticsMatcher.find()) {
-            String gcName = statisticsMatcher.group(GROUP_STATS_GC_NAME)
-            stats[gcName] = new GCStatistic(gcName: gcName,
-                    startValueInB: Utils.convertMemoryValueStringToLong(
-                            statisticsMatcher.group(gcName ?
-                                GROUP_STATS_GC_START_VALUE :
-                                GROUP_STATS_GC_COMPLETE_START_VALUE)),
-                    endValueInB: Utils.convertMemoryValueStringToLong(
-                            statisticsMatcher.group(gcName ?
-                                GROUP_STATS_GC_END_VALUE :
-                                GROUP_STATS_GC_COMPLETE_END_VALUE)),
-                    maxValueInB: Utils.convertMemoryValueStringToLong(
-                            statisticsMatcher.group(gcName ?
-                                GROUP_STATS_GC_MAX_VALUE :
-                                GROUP_STATS_GC_COMPLETE_MAX_VALUE))
-            )
+            if (statisticsMatcher.group(GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE)) {
+                // if there is GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE group, it means
+                // that there was following combination:
+                // survivor pool details + Serial GC
+                stats[GCType.YOUNG_SERIAL] = new GCStatistic(gcName: GCType.YOUNG_SERIAL,
+                        startValueInB: Utils.convertMemoryValueStringToLong(
+                                statisticsMatcher.group(GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE)),
+                        endValueInB: Utils.convertMemoryValueStringToLong(
+                                statisticsMatcher.group(GROUP_STATS_GC_SERIAL_YOUNG_GC_END_VALUE)),
+                        maxValueInB: Utils.convertMemoryValueStringToLong(
+                                statisticsMatcher.group(GROUP_STATS_GC_SERIAL_YOUNG_GC_MAX_VALUE)),
+                )
+            } else {
+                String gcName = statisticsMatcher.group(GROUP_STATS_GC_NAME)
+                stats[gcName] = new GCStatistic(gcName: gcName,
+                        startValueInB: Utils.convertMemoryValueStringToLong(
+                                statisticsMatcher.group(gcName ?
+                                    GROUP_STATS_GC_START_VALUE :
+                                    GROUP_STATS_GC_COMPLETE_START_VALUE)),
+                        endValueInB: Utils.convertMemoryValueStringToLong(
+                                statisticsMatcher.group(gcName ?
+                                    GROUP_STATS_GC_END_VALUE :
+                                    GROUP_STATS_GC_COMPLETE_END_VALUE)),
+                        maxValueInB: Utils.convertMemoryValueStringToLong(
+                                statisticsMatcher.group(gcName ?
+                                    GROUP_STATS_GC_MAX_VALUE :
+                                    GROUP_STATS_GC_COMPLETE_MAX_VALUE))
+                )
+            }
         }
         return stats
     }
