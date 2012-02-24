@@ -1,0 +1,13 @@
+-Xms30m
+-Xmx30m
+
+-XX:+UseParallelOldGC
+-XX:+AlwaysPreTouch
+-XX:+PrintSafepointStatistics
+-XX:+PrintCommandLineFlags
+
+-XX:+PrintGCDetails
+-XX:+PrintGCDateStamps
+-XX:+PrintTenuringDistribution
+-Xloggc:gc_analyzer.log
+
