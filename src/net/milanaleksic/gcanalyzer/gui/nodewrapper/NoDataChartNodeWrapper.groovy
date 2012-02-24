@@ -32,4 +32,9 @@ recognizable by GCAnalyzer application</p>
         return uiComponent
     }
 
+    @Override
+    String toString() {
+        return "(No data) ${super.toString()}"
+    }
+
 }
