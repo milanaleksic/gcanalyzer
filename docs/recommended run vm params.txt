@@ -1,5 +1,6 @@
--Xms30m
--Xmx30m
+-Xmn60m
+-Xms128m
+-Xmx128m
 
 -XX:+UseParallelOldGC
 -XX:+AlwaysPreTouch

@@ -17,7 +17,7 @@
 <body>
 <h3>Which JVM command line parameters are currently supported and expected:</h3>
 
-<pre>-XX:+UseParallelOldGC -Xloggc:&lt;log_name&gt; -XX:+PrintGCDetails -XX:+PrintGCDateStamps [-XX:+PrintTenuringDistribution]</pre>
+<pre>[-XX:+UseParallelGC|-XX:+UseParallelOldGC|-XX:+UseSerialGC] -Xloggc:&lt;log_name&gt; -XX:+PrintGCDetails -XX:+PrintGCDateStamps [-XX:+PrintTenuringDistribution]</pre>
 
 <h3>Heap sizing recommendations</h3>
 
