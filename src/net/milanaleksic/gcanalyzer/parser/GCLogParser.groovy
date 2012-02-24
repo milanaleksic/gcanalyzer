@@ -2,8 +2,6 @@ package net.milanaleksic.gcanalyzer.parser
 
 import java.util.regex.Pattern
 import net.milanaleksic.gcanalyzer.util.Utils
-import java.math.RoundingMode
-import java.math.MathContext
 
 /**
  * User: Milan Aleksic
@@ -197,11 +195,11 @@ class GCLogParser {
                 String totalSurvivorSize = matcher.group(GROUP_MAIN_SURVIVOR_TOTAL_SERIAL)
                 if (!totalSurvivorSize)
                     totalSurvivorSize = matcher.group(GROUP_MAIN_SURVIVOR_TOTAL)
-                survivorDetails = new GCSurvivorDetails(
-                    desiredSize: Long.parseLong(matcher.group(GROUP_MAIN_SURVIVOR_DESIRED_SIZE)),
-                    newThreshold: Integer.parseInt(matcher.group(GROUP_MAIN_SURVIVOR_THRESHOLD_NEW)),
-                    maxThreshold: Integer.parseInt(matcher.group(GROUP_MAIN_SURVIVOR_THRESHOLD_MAX)),
-                    endingTotalSize: totalSurvivorSize ? Long.parseLong(totalSurvivorSize) : null)
+                survivorDetails = GCSurvivorDetails.create(
+                    Integer.parseInt(matcher.group(GROUP_MAIN_SURVIVOR_THRESHOLD_NEW)),
+                    Integer.parseInt(matcher.group(GROUP_MAIN_SURVIVOR_THRESHOLD_MAX)),
+                    Long.parseLong(matcher.group(GROUP_MAIN_SURVIVOR_DESIRED_SIZE)),
+                    totalSurvivorSize ? Long.parseLong(totalSurvivorSize) : null)
             }
 
             def userTiming = null, sysTiming = null, realTiming = null
@@ -264,26 +262,26 @@ class GCLogParser {
                 // if there is GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE group, it means
                 // that there was following combination:
                 // survivor pool details + Serial GC
-                stats[GCType.YOUNG_SERIAL] = new GCStatistic(gcName: GCType.YOUNG_SERIAL,
-                        startValueInB: Utils.convertMemoryValueStringToLong(
+                stats[GCType.YOUNG_SERIAL] = GCStatistic.create(GCType.YOUNG_SERIAL,
+                        Utils.convertMemoryValueStringToLong(
                                 statisticsMatcher.group(GROUP_STATS_GC_SERIAL_YOUNG_GC_START_VALUE)),
-                        endValueInB: Utils.convertMemoryValueStringToLong(
+                        Utils.convertMemoryValueStringToLong(
                                 statisticsMatcher.group(GROUP_STATS_GC_SERIAL_YOUNG_GC_END_VALUE)),
-                        maxValueInB: Utils.convertMemoryValueStringToLong(
+                        Utils.convertMemoryValueStringToLong(
                                 statisticsMatcher.group(GROUP_STATS_GC_SERIAL_YOUNG_GC_MAX_VALUE)),
                 )
             } else {
                 String gcName = statisticsMatcher.group(GROUP_STATS_GC_NAME)
-                stats[gcName] = new GCStatistic(gcName: gcName,
-                        startValueInB: Utils.convertMemoryValueStringToLong(
+                stats[gcName] = GCStatistic.create(gcName,
+                        Utils.convertMemoryValueStringToLong(
                                 statisticsMatcher.group(gcName ?
                                     GROUP_STATS_GC_START_VALUE :
                                     GROUP_STATS_GC_COMPLETE_START_VALUE)),
-                        endValueInB: Utils.convertMemoryValueStringToLong(
+                        Utils.convertMemoryValueStringToLong(
                                 statisticsMatcher.group(gcName ?
                                     GROUP_STATS_GC_END_VALUE :
                                     GROUP_STATS_GC_COMPLETE_END_VALUE)),
-                        maxValueInB: Utils.convertMemoryValueStringToLong(
+                        Utils.convertMemoryValueStringToLong(
                                 statisticsMatcher.group(gcName ?
                                     GROUP_STATS_GC_MAX_VALUE :
                                     GROUP_STATS_GC_COMPLETE_MAX_VALUE))

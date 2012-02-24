@@ -16,4 +16,19 @@ final class GCStatistic {
 
     long maxValueInB
 
+    long startValueInKB
+
+    long endValueInKB
+
+    long maxValueInKB
+
+    @Newify([GCStatistic])
+    public static GCStatistic create(String gcName, long startValueInB, long endValueInB, long maxValueInB) {
+        GCStatistic(
+                gcName: gcName,
+                startValueInB: startValueInB, endValueInB: endValueInB, maxValueInB: maxValueInB,
+                startValueInKB: startValueInB >> 10, endValueInKB: endValueInB >> 10, maxValueInKB: maxValueInB >> 10
+        )
+    }
+
 }

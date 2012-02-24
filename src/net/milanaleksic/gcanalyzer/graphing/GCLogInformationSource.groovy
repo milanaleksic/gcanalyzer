@@ -113,19 +113,13 @@ class GCLogInformationSource {
     private JFreeChart getOldGenerationCompleteChart() {
         getTimeChartBasedOnIndependentEvents('Old generation memory occupancy', 'Memory (KB)', [
                 'Start memory occupancy': { GCEvent event ->
-                    if (!event.fullGarbageCollection)
-                        return null
-                    event.stats.oldGeneration.startValueInB / 1024
+                    event.stats.oldGeneration ? event.stats.oldGeneration.startValueInKB : null
                 },
                 'End memory occupancy': { GCEvent event ->
-                    if (!event.fullGarbageCollection)
-                        return null
-                    event.stats.oldGeneration.endValueInB / 1024
+                    event.stats.oldGeneration ? event.stats.oldGeneration.endValueInKB : null
                 },
                 'Max memory occupancy': { GCEvent event ->
-                    if (!event.fullGarbageCollection)
-                        return null
-                    event.stats.oldGeneration.maxValueInB / 1024
+                    event.stats.oldGeneration ? event.stats.oldGeneration.maxValueInKB : null
                 }
         ] as Map<String, Closure>)
     }
@@ -134,19 +128,13 @@ class GCLogInformationSource {
     private JFreeChart getPermanentGenerationCompleteChart() {
         getTimeChartBasedOnIndependentEvents('Permanent generation memory occupancy', 'Memory (KB)', [
                 'Start memory occupancy': { GCEvent event ->
-                    if (!event.fullGarbageCollection)
-                        return null
-                    event.stats.permanentGeneration.startValueInB / 1024
+                     event.stats.permanentGeneration ? event.stats.permanentGeneration.startValueInKB : null
                 },
                 'End memory occupancy': { GCEvent event ->
-                    if (!event.fullGarbageCollection)
-                        return null
-                    event.stats.permanentGeneration.endValueInB / 1024
+                    event.stats.permanentGeneration ? event.stats.permanentGeneration.endValueInKB : null
                 },
                 'Max memory occupancy': { GCEvent event ->
-                    if (!event.fullGarbageCollection)
-                        return null
-                    event.stats.permanentGeneration.maxValueInB / 1024
+                    event.stats.permanentGeneration ? event.stats.permanentGeneration.maxValueInKB : null
                 }
         ] as Map<String, Closure>)
     }
@@ -155,19 +143,13 @@ class GCLogInformationSource {
     private JFreeChart getYoungGenerationCompleteChart() {
         getTimeChartBasedOnIndependentEvents('Young generation memory occupancy', 'Memory (KB)', [
                 'Start memory occupancy': { GCEvent event ->
-                    if (!event.stats.youngGeneration)
-                        return null
-                    event.stats.youngGeneration.startValueInB / 1024
+                    event.stats.youngGeneration ? event.stats.youngGeneration.startValueInKB : null
                 },
                 'End memory occupancy': { GCEvent event ->
-                    if (!event.stats.youngGeneration)
-                        return null
-                    event.stats.youngGeneration.endValueInB / 1024
+                    event.stats.youngGeneration ? event.stats.youngGeneration.endValueInKB : null
                 },
                 'Max memory occupancy': { GCEvent event ->
-                    if (!event.stats.youngGeneration)
-                        return null
-                    event.stats.youngGeneration.maxValueInB / 1024
+                    event.stats.youngGeneration ? event.stats.youngGeneration.maxValueInKB : null
                 }
         ] as Map<String, Closure>)
     }
@@ -191,11 +173,11 @@ class GCLogInformationSource {
         getTimeChartBasedOnIndependentEvents('Survivor pool size', 'Memory (KB)', [
                 'Desired size': { GCEvent event ->
                     GCSurvivorDetails details = event.survivorDetails
-                    details ? details.desiredSize / 1024 : null
+                    details ? details.desiredSizeInKB: null
                 },
                 'Ending total size': { GCEvent event ->
                     GCSurvivorDetails details = event.survivorDetails
-                    details ? details.endingTotalSize ? details.endingTotalSize / 1024 : null : null
+                    details ? details.endingTotalSizeInKB ? details.endingTotalSizeInKB : null : null
                 }
         ] as Map<String, Closure>)
     }
@@ -216,7 +198,7 @@ class GCLogInformationSource {
     private JFreeChart getOldGenerationMemoryOccupancyChart() {
         getTimeChartBasedOnIndependentEvents('Old generation memory occupancy in %', '%') {
             GCEvent event ->
-            if (!event.fullGarbageCollection)
+            if (!event.stats.oldGeneration)
                 return null
             event.stats.oldGeneration.endValueInB * 100 / event.stats.oldGeneration.maxValueInB
         }
@@ -226,7 +208,7 @@ class GCLogInformationSource {
     private JFreeChart getPermGenerationMemoryOccupancyChart() {
         getTimeChartBasedOnIndependentEvents('Permanent generation memory occupancy in %', '%') {
             GCEvent event ->
-            if (!event.fullGarbageCollection)
+            if (!event.stats.permanentGeneration)
                 return null
             event.stats.permanentGeneration.endValueInB * 100 / event.stats.permanentGeneration.maxValueInB
         }
@@ -235,52 +217,42 @@ class GCLogInformationSource {
     @Cacheable
     private JFreeChart getLiveSizeChart() {
         getTimeChartBasedOnIndependentEvents('Memory live size (Old gen memory occupancy after Full GCs)', 'Memory (KB)') {
-            GCEvent event ->
-            if (!event.fullGarbageCollection)
-                return null
-            event.stats.oldGeneration.endValueInB / 1024
+            GCEvent event -> event.stats.oldGeneration?.endValueInKB
         }
     }
 
     @Cacheable
     private JFreeChart getPermGenSizeChart() {
         getTimeChartBasedOnIndependentEvents('Permanent generation size after Full GC', 'Memory (KB)') {
-            GCEvent event ->
-            if (!event.fullGarbageCollection)
-                return null
-            event.stats.permanentGeneration.endValueInB / 1024
+            GCEvent event -> event.stats.permanentGeneration?.endValueInKB
         }
     }
 
     @Cacheable
     private JFreeChart getEventTimingsChart() {
         getTimeChartBasedOnIndependentEvents('Complete event time', 'Milliseconds (ms)') {
-            GCEvent event ->
-            event.completeEventTimeInMicroSeconds / 1000
+            GCEvent event -> event.completeEventTimeInMicroSeconds / 1000
         }
     }
 
     @Cacheable
     private JFreeChart getYoungGCEventTimingsChart() {
         getTimeChartBasedOnIndependentEvents('Only Young Generation GC event time', 'Milliseconds (ms)') {
-            GCEvent event ->
-            event.fullGarbageCollection ? null : event.completeEventTimeInMicroSeconds / 1000
+            GCEvent event -> event.fullGarbageCollection ? null : event.completeEventTimeInMicroSeconds / 1000
         }
     }
 
     @Cacheable
     private JFreeChart getFullGCEventTimingsChart() {
         getTimeChartBasedOnIndependentEvents('Full Generation GC event time', 'Milliseconds (ms)') {
-            GCEvent event ->
-            event.fullGarbageCollection ? event.completeEventTimeInMicroSeconds / 1000 : null
+            GCEvent event -> event.fullGarbageCollection ? event.completeEventTimeInMicroSeconds / 1000 : null
         }
     }
 
     @Cacheable
     private JFreeChart getHeapWithoutPermanentGenerationGCChart() {
         getTimeChartBasedOnIndependentEvents('Heap without Permanent generation', 'Memory (KB)') {
-            GCEvent event ->
-            event.stats.heapWithoutPermGen.maxValueInB / 1024
+            GCEvent event -> event.stats.heapWithoutPermGen.maxValueInKB
         }
     }
 
@@ -502,41 +474,39 @@ class GCLogInformationSource {
     @Cacheable
     private double sumYoungGCEventLengthMicroSeconds() {
         calculateOrUseCachedStatistics('sumYoungGCEventLengthMicroSeconds') {
-            double sum = 0
+            double ofTheJedi = 0
             events.linkedList.each { GCEvent event ->
                 if (!event.fullGarbageCollection) {
-                    sum += event.completeEventTimeInMicroSeconds
+                    ofTheJedi += event.completeEventTimeInMicroSeconds
                 }
             }
-            return sum
+            ofTheJedi
         }
     }
 
     @Cacheable
     private double sumFullGCEventLengthMicroSeconds() {
         calculateOrUseCachedStatistics('sumFullGCEventLengthMicroSeconds') {
-            long sum = 0
+            long ofTheJedi = 0
             events.hashMapOnMillis.values().each { GCEvent event ->
                 if (event.fullGarbageCollection) {
-                    sum += event.completeEventTimeInMicroSeconds
+                    ofTheJedi += event.completeEventTimeInMicroSeconds
                 }
             }
-            return sum
+            ofTheJedi
         }
     }
 
     public double averageYoungGCEventLength() {
         if (numberOfDetectedYoungGCEvents() == 0)
             return 0
-        double ofTheJedi = sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents() / 1000
-        return ofTheJedi
+        return sumYoungGCEventLengthMicroSeconds() / numberOfDetectedYoungGCEvents() / 1000
     }
 
     public double averageFullGCEventLength() {
         if (numberOfDetectedFullGCEvents() == 0)
             return 0
-        double ofTheJedi = sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents() / 1000
-        return ofTheJedi
+        return sumFullGCEventLengthMicroSeconds() / numberOfDetectedFullGCEvents() / 1000
     }
 
     @Cacheable
