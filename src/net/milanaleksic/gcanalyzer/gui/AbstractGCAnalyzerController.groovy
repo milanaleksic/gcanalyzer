@@ -15,7 +15,7 @@ abstract class AbstractGCAnalyzerController {
 
     protected Container fileAnalysisContainer
 
-    private JTextField fileNameTextField
+    protected JTextField fileNameTextField
 
     private ParsingFinishedListener parsingFinishedListener
 
@@ -51,7 +51,8 @@ abstract class AbstractGCAnalyzerController {
         panel.add(new JLabel("Java GC file: "), constraints)
         constraints.gridx=1
         constraints.weightx = 0.9
-        panel.add(fileNameTextField = new JTextField(), constraints)
+        fileNameTextField = new JTextField()
+        panel.add(fileNameTextField, constraints)
         JButton button = new JButton("Load")
         button.addActionListener( { ActionEvent e ->
             addFile(fileNameTextField.text)
