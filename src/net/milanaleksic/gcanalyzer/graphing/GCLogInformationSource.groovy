@@ -26,8 +26,6 @@ class GCLogInformationSource {
 
     private long parsingTime
 
-    private long chartCreationTime
-
     private static final GCLogParser parser = new GCLogParser()
 
     GCLogInformationSource(URL url) {
@@ -337,7 +335,13 @@ class GCLogInformationSource {
                 if (!timeSpent) {
                     timeSpent = 0
                 }
-                series.add(new Millisecond(iteratorTime), timeSpent)
+                def millisecond = new Millisecond(iteratorTime)
+                def value = series.getValue(millisecond)
+                if (value != null) {
+                    System.err.println("Warning: updating current value at time: $millisecond")
+                    series.addOrUpdate(millisecond, value + timeSpent)
+                } else
+                    series.add(millisecond, timeSpent)
                 iterator.add(Calendar.HOUR, 1)
             }
         }
@@ -391,7 +395,7 @@ class GCLogInformationSource {
         return chart
     }
 
-    private JFreeChart getTimeChart(String graphName, String yAxisName, Map<String, Closure> seriesToClosureMapping, Closure process) {
+    private static JFreeChart getTimeChart(String graphName, String yAxisName, Map<String, Closure> seriesToClosureMapping, Closure process) {
         TimeSeriesCollection dataSet = new TimeSeriesCollection()
 
         def seriesMap = [:]
