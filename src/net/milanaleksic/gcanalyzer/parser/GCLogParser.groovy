@@ -53,7 +53,7 @@ class GCLogParser {
         (\d+\.\d+):\s\[                  # 8 (GROUP_MAIN_TIME_SINCE_PROGRAM_START) - time in seconds from program start
 		(                                # 9 (GROUP_MAIN_EVENT_NAME) - Garbage collection event
 			([Ful\s]+)?                  # 10 - [helper group]
-			GC
+			GC-?-?
 			(\s?\(System\))?             # 11 - [helper group]
 		)\s?
 		(\d+\.\d+:\s?)?                  # 12 - [helper group]

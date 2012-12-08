@@ -89,7 +89,7 @@ class GCLogParserTest {
         assertThat(event.survivorDetails.newThreshold, equalTo(2))
         assertThat(event.survivorDetails.maxThreshold, equalTo(31))
         assertThat(event.survivorDetails.desiredSizeInB, equalTo(655360L))
-        assertThat(event.survivorDetails.endingTotalSizeInB, Matchers.<Long>nullValue())
+        assertThat(event.survivorDetails.endingTotalSizeInB, Matchers.nullValue())
     }
 
     @Test
@@ -218,6 +218,30 @@ Desired survivor size 425984 bytes, new threshold 4 (max 15)
         assertThat(event.survivorDetails.maxThreshold, equalTo(15))
         assertThat(event.survivorDetails.desiredSizeInB, equalTo(425984L))
         assertThat(event.survivorDetails.endingTotalSizeInB, equalTo(717072L))
+    }
+
+    @Test
+    void parseSimpleGcWithDoubleMinusInName() {
+        GCEvents events = new GCLogParser().parse('2012-10-23T19:17:04.230+0000: 896006.819: [GC-- [PSYoungGen: 54208K->54208K(54208K)] 99061K->106429K(106432K), 0.1390680 secs] [Times: user=0.05 sys=0.03, real=0.14 secs] ')
+        assertThat(events.size(), equalTo(1))
+        GCEvent event = events.hashMapOnMillis[896006819L]
+        assertThat(event, not(nullValue(GCEvent.class)))
+        assertThat(events.hashMapOnDate[event.moment], equalTo(event))
+
+        assertThat(event.gcEventName, equalTo('GC--'))
+        assertThat(event.isFullGarbageCollection(), equalTo(false))
+        assertThat(event.isExplicitFullGarbageCollection(), equalTo(false))
+
+        assertThat(event.stats.heapWithoutPermGen.startValueInKB, equalTo(99061L)) // 99061K->106429K(106432K)
+        assertThat(event.stats.heapWithoutPermGen.endValueInKB, equalTo(106429L))
+        assertThat(event.stats.heapWithoutPermGen.maxValueInKB, equalTo(106432L))
+        assertThat(event.stats.youngGeneration.startValueInKB, equalTo(54208L)) // 54208K->54208K(54208K)
+        assertThat(event.stats.youngGeneration.endValueInKB, equalTo(54208L))
+        assertThat(event.stats.youngGeneration.maxValueInKB, equalTo(54208L))
+        assertThat(event.userTiming, equalTo(50L))
+        assertThat(event.sysTiming, equalTo(30L))
+        assertThat(event.realTiming, equalTo(140L))
+        assertThat(event.completeEventTimeInMicroSeconds, equalTo(139068L))
     }
 
 }
